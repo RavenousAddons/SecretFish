@@ -1,13 +1,13 @@
 local ADDON_NAME, ns = ...
 
 ns.defaults = {
+    macro = true,
     scale = 1,
     windowPosition = "CENTER",
     windowX = 0,
     windowY = 0,
     windowWidth = 420,
     windowHeight = 360,
-    minimapPosition = 0,
 }
 
 ns.data = {
@@ -21,67 +21,87 @@ ns.data = {
             criteria = {
                 {
                     pre = {
-                        "Simply travel around Mechagon fishing in specific areas and turn each fish in to Angler Danielle!",
+                        "Simply travel around Mechagon fishing in specific areas and turn each fish in!",
                         "Please feel free to make use of the Map Pins by clicking on the titles below:",
                     },
                     -- Bolted Steelhead
                     id = 44738,
+                    quest = 55305,
                     item = 167655,
                     waypoint = 37034495,
+                    dropchance = 1,
                 },
                 {
                     -- Energized Lightning Cod
                     id = 44744,
+                    quest = 55311,
                     item = 167661,
                     waypoint = 37034495,
+                    dropchance = 1,
                 },
                 {
                     -- Solarsprocket Barbel
                     id = 44745,
+                    quest = 55312,
                     item = 167662,
                     waypoint = 37034495,
+                    dropchance = 1,
                 },
                 {
                     -- Bottom Feeding Stinkfish
                     id = 44737,
+                    quest = 55299,
                     item = 167654,
                     waypoint = 79004900,
+                    dropchance = 1,
                 },
                 {
                     -- Pong Hopping Springfish
                     id = 44739,
+                    quest = 55306,
                     item = 167656,
-                    waypoint = 65003200,
+                    waypoint = 65893030,
+                    dropchance = 1,
                 },
                 {
                     -- Shadowy Cave Eel
                     id = 44740,
+                    quest = 55307,
                     item = 167657,
-                    waypoint = 59002400,
+                    waypoint = 56822222,
+                    dropchance = 1,
                 },
                 {
                     -- Mechanical Blowfish
                     id = 44741,
+                    quest = 55308,
                     item = 167658,
                     waypoint = 25007700,
+                    dropchance = 1,
                 },
                 {
                     -- Spitting Clownfish
                     id = 44742,
+                    quest = 55309,
                     item = 167659,
                     waypoint = 83007200,
+                    dropchance = 1,
                 },
                 {
                     -- Sludge-fouled Carp
                     id = 44743,
+                    quest = 55310,
                     item = 167660,
                     waypoint = 65005100,
+                    dropchance = 1,
                 },
                 {
                     -- Tasty Steelfin
                     id = 44746,
+                    quest = 55313,
                     item = 167663,
                     waypoint = 47003700,
+                    dropchance = 1,
                 },
             },
             post = {
@@ -288,6 +308,7 @@ ns.data = {
                     id = 45754,
                     item = 169884,
                     waypoint = 37034495,
+                    dropchance = 1,
                 },
 
                 {
@@ -298,6 +319,7 @@ ns.data = {
                     id = 45755,
                     item = 169870,
                     waypoint = 37034495,
+                    dropchance = 1,
                 },
             },
             post = {

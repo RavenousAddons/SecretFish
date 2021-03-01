@@ -14,6 +14,17 @@ L.Version = "%s is the current version." -- ns.version
 L.Install = "Thanks for installing |cff%1$sv%2$s|r! You can open the interface with |cff%1$s/%3$s|r." -- ns.color, ns.version, ns.command
 L.Update = "Thanks for updating to |cff%1$sv%2$s|r! You can open the interface with |cff%1$s/%3$s|r." -- ns.color, ns.version, ns.command
 L.NoMacroSpace = "Unfortunately, you don't have enough global macro space for the macro to be created!"
+L.SupportHeading = "Help and Support:"
+L.Support1 = "This Addon creates and maintains a macro called |r%s|cffffffff for you under |rGeneral Macros|cffffffff." -- ns.name
+L.Support2 = "Check out the Addon on |rGitHub|cffffffff, |rWoWInterface|cffffffff, or |rCurse|cffffffff for more info and support!"
+L.Support3 = "You can also get help directly from the author on Discord: |r%s|cffffffff" -- ns.discord
+L.Defaults = {
+    {
+        var = "macro",
+        text = "Automatically create macro",
+        tooltip = "When enabled, a macro called |cffffffff" .. ns.name .. "|r will be automatically created and managed for you under |cffffffffGeneral Macros|r.",
+    },
+}
 
 -- Check locale and assign appropriate
 local CURRENT_LOCALE = GetLocale()

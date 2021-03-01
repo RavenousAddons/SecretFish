@@ -14,6 +14,8 @@ function SecretFish_OnEvent(self, event, arg, ...)
         ns:BuildWindow()
         ns:RefreshCriteria()
         ns:EnsureMacro()
+        ns:BuildOptions()
+        InterfaceOptions_AddCategory(ns.Options)
         if not SECRETFISH_version then
             ns:PrettyPrint(string.format(L.Install, ns.color, ns.version, ns.command))
             ns:ToggleWindow(ns.Window)
@@ -28,9 +30,12 @@ function SecretFish_OnEvent(self, event, arg, ...)
 end
 
 SlashCmdList["SECRETFISH"] = function(message, editbox)
-    local command, argument = strsplit(" ", message)
-    if command == "version" or command == "v" then
+    if message == "version" or message == "v" then
         ns:PrettyPrint(string.format(L.Version, ns.version))
+    elseif message == "c" or string.match(message, "con") or message == "h" or string.match(message, "help") or message == "o" or string.match(message, "opt") or message == "s" or string.match(message, "sett") or string.match(message, "togg") then
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
+        InterfaceOptionsFrame_OpenToCategory(ns.Options)
+        InterfaceOptionsFrame_OpenToCategory(ns.Options)
     else
         ns:ToggleWindow(ns.Window)
     end

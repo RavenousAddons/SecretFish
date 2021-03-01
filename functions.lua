@@ -36,7 +36,12 @@ local function TextIcon(icon, size)
 end
 
 local quest = TextIcon(132049)
+local turnin = TextIcon(132048)
 local checkmark = TextIcon(628564)
+
+local function HideTooltip()
+    GameTooltip:Hide()
+end
 
 ---
 -- Global Functions
@@ -44,24 +49,6 @@ local checkmark = TextIcon(628564)
 
 function ns:PrettyPrint(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cff" .. ns.color .. ns.name .. ":|r " .. message)
-end
-
-function ns:RegisterDefaultOption(key, value)
-    if SECRETFISH_data.options[key] == nil then
-        SECRETFISH_data.options[key] = value
-    end
-end
-
-function ns:SetDefaultOptions()
-    if SECRETFISH_data == nil then
-        SECRETFISH_data = {}
-    end
-    if SECRETFISH_data.options == nil then
-        SECRETFISH_data.options = {}
-    end
-    for k, v in pairs(ns.defaults) do
-        ns:RegisterDefaultOption(k, v)
-    end
 end
 
 function ns:ToggleWindow(frame, force)
@@ -79,6 +66,13 @@ function ns:ToggleWindow(frame, force)
             frame:Show()
         end)
     end
+end
+
+function ns:Register(Key, Value, Parent)
+    if not Key or not Value then return end
+    Parent = Parent or ns
+    Parent[Key] = Parent[Key] or {}
+    table.insert(Parent[Key], Value)
 end
 
 ---
@@ -114,16 +108,10 @@ local function RunsUntil95(chance, bound)
     return bound
 end
 
-local function RegisterGlobal(Key, Value)
-    if not Key or not Value then return end
-    ns[Key] = ns[Key] or {}
-    table.insert(ns[Key], Value)
-end
-
 local function CustomReplacements(text)
-    text = string.gsub(text, "Secret Fish Goggles", "|cff0070dd|Hitem:167698::::::::60:::::|h[Secret Fish Goggles]|h|r")
-    text = string.gsub(text, "Hyper-Compressed Ocean", "|cff0070dd|Hitem:168016::::::::60:::::|h[Hyper-Compressed Ocean]|h|r")
-    text = string.gsub(text, "The Other Place", "|cffffff00|Hquest:55816:50|h[The Other Place]|h|r")
+    text = string.gsub(text, "(Secret Fish Goggles)", TextColor("[%1]", "0070dd") .. " " .. TextIcon(133023))
+    text = string.gsub(text, "(Hyper%-Compressed Ocean)", TextColor("[%1]", "0070dd") .. " " .. TextIcon(132852))
+    text = string.gsub(text, "(The Other Place)", TextIcon(368364) .. TextColor("[%1]", "ffff00"))
     return text
 end
 
@@ -152,9 +140,8 @@ function ns:BuildWindow()
     end)
     tinsert(UISpecialFrames, Window:GetName())
 
-    -- Window Interactions
     local function WindowInteractionStart(self, button)
-        if button == "LeftButton" then
+        if button == "LeftButton" and not SECRETFISH_data.options.locked then
             Window:StartMoving()
             Window.isMoving = true
             Window.hasMoved = false
@@ -173,6 +160,45 @@ function ns:BuildWindow()
     end
     Window:SetScript("OnMouseDown", WindowInteractionStart)
     Window:SetScript("OnMouseUp", WindowInteractionEnd)
+
+    local LockButton = CreateFrame("Button", ADDON_NAME .. "LockButton", Window, "UIPanelButtonTemplate")
+    LockButton:SetPoint("TOPLEFT", Window, "TOPLEFT", 9, -small)
+    LockButton:SetWidth(18)
+    LockButton:SetHeight(18)
+    LockButton:RegisterForClicks("LeftButton")
+    LockButton:SetScript("OnMouseDown", function(self, button)
+        SECRETFISH_data.options.locked = not SECRETFISH_data.options.locked
+        GameTooltip:SetText(TextColor(SECRETFISH_data.options.locked and "Unlock Window" or "Lock Window"))
+    end)
+    LockButton:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+        GameTooltip:SetText(TextColor(SECRETFISH_data.options.locked and "Unlock Window" or "Lock Window"))
+        GameTooltip:Show()
+    end)
+    LockButton:SetScript("OnLeave", HideTooltip)
+    local LockButtonIcon = LockButton:CreateTexture()
+    LockButtonIcon:SetAllPoints(LockButton)
+    LockButtonIcon:SetTexture(130944)
+
+    local OptionsButton = CreateFrame("Button", ADDON_NAME .. "OptionsButton", Window, "UIPanelButtonTemplate")
+    OptionsButton:SetPoint("TOPLEFT", LockButton, "TOPRIGHT", 2, 0)
+    OptionsButton:SetWidth(18)
+    OptionsButton:SetHeight(18)
+    OptionsButton:RegisterForClicks("LeftButton")
+    OptionsButton:SetScript("OnMouseDown", function(self, button)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
+        InterfaceOptionsFrame_OpenToCategory(ns.Options)
+        InterfaceOptionsFrame_OpenToCategory(ns.Options)
+    end)
+    OptionsButton:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+        GameTooltip:SetText(TextColor("Open Interface Options"))
+        GameTooltip:Show()
+    end)
+    OptionsButton:SetScript("OnLeave", HideTooltip)
+    local OptionsButtonIcon = OptionsButton:CreateTexture()
+    OptionsButtonIcon:SetAllPoints(OptionsButton)
+    OptionsButtonIcon:SetTexture(134063)
 
     -- Simple Heading
     local Heading = Window:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -261,7 +287,7 @@ function ns:CreateAchievement(Parent, Relative, Offset, achievement)
             GameTooltip:AddLine(zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" 37.0, 47.2"))
             GameTooltip:Show()
         end)
-        DescriptionAnchor:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        DescriptionAnchor:SetScript("OnLeave", HideTooltip)
         DescriptionAnchor:SetScript("OnClick", function()
             ns:PrettyPrint("|cffffd100|Hworldmap:1462:3700:4720|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zone.color .. zoneName .. "|r |cffeeeeee37.0, 47.2|r]|h|r")
             C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(1462, "0.3700", "0.4720"))
@@ -287,7 +313,6 @@ function ns:CreateCriteria(Parent, Relative, Offset, achievement, i, criteria)
     Criteria:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
     Criteria:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
     Criteria:SetJustifyH("LEFT")
-    Relative = Criteria
 
     local CriteriaAnchor = CreateFrame("Button", nil, Parent)
     CriteriaAnchor:SetAllPoints(Criteria)
@@ -296,12 +321,18 @@ function ns:CreateCriteria(Parent, Relative, Offset, achievement, i, criteria)
     Criteria.achievement = achievement
     Criteria.i = i
     Criteria.data = criteria
-    RegisterGlobal("Criteria", Criteria)
+    ns:Register("Criteria", Criteria)
 
-    return Relative
+    return Criteria
 end
 
 function ns:RefreshCriteria()
+    if not ns.Criteria then
+        C_Timer.After(0.5, function()
+            ns:RefreshCriteria()
+        end)
+        return
+    end
     for _, Criteria in ipairs(ns.Criteria) do
         local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID, eligible = GetAchievementCriteriaInfoByID(Criteria.achievement.id, Criteria.data.id)
         local dropchance = Criteria.data.dropchance or 1
@@ -312,8 +343,9 @@ function ns:RefreshCriteria()
         local Item = Item:CreateFromItemID(Criteria.data.item)
         Item:ContinueOnItemLoad(function()
             local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
+            local onQuest = Criteria.data.quest and C_QuestLog.IsOnQuest(Criteria.data.quest) or false
             local c = {}
-            Criteria:SetText((completed and checkmark or quest) .. "  " .. Criteria.i .. ". " .. itemLink .. " " .. TextIcon(itemTexture))
+            Criteria:SetText((completed and checkmark or onQuest and turnin or quest) .. "  " .. Criteria.i .. ". " .. itemLink .. " " .. TextIcon(itemTexture))
             if Criteria.data.waypoint then
                 local waypoint = type(Criteria.data.waypoint) == "table" and Criteria.data.waypoint[1] or Criteria.data.waypoint
                 for d in tostring(waypoint):gmatch("[0-9][0-9]") do
@@ -334,11 +366,13 @@ function ns:RefreshCriteria()
                     GameTooltip:SetText(TextColor(itemName))
                     -- GameTooltip:AddLine("\n" .. TextColor("Drops any place at any time.", "bbbbbb"))
                 end
-                GameTooltip:AddLine("\nDrop Chance: " .. TextColor(dropchance .. "%") ..  TextColor(" (~95% after " .. RunsUntil95(dropchance) .. " casts)", "bbbbbb"))
+                if Criteria.data.dropchance then
+                    GameTooltip:AddLine("\nDrop Chance: " .. TextColor(Criteria.data.dropchance .. "%") ..  TextColor(" (~95% after " .. RunsUntil95(Criteria.data.dropchance) .. " casts)", "bbbbbb"))
+                end
                 -- GameTooltip:SetHyperlink(itemLink)
                 GameTooltip:Show()
             end)
-            Criteria.anchor:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            Criteria.anchor:SetScript("OnLeave", HideTooltip)
         end)
     end
 end
@@ -352,8 +386,7 @@ function ns:CreateNote(Parent, Relative, Offset, note)
     Note:SetJustifyH("LEFT")
     Note:SetText(TextColor(CustomReplacements(note)))
 
-    Relative = Note
-    return Relative
+    return Note
 end
 
 function ns:CreateNotes(Parent, Relative, Offset, notes)
