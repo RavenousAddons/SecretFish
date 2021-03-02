@@ -47,7 +47,6 @@ L.DropsAnywhere = "Drops anywhere"
 L.DropChance = "Drop Chance"
 L.ZoneWide = "Zone-wide"
 L.Attempts = "~95% after 300 attempts"
-L.Outro = ""
 
 -- Check locale and assign appropriate
 local CURRENT_LOCALE = GetLocale()

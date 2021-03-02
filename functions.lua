@@ -248,10 +248,6 @@ function ns:BuildWindow()
         end
     end
 
-    -- Outro
-    local Outros = ns:CreateNotes(Parent, Relative, Offset, {L.Outro})
-    Relative = Outros
-
     local Spacer = ns:CreateSpacer(Parent, Relative)
 end
 
