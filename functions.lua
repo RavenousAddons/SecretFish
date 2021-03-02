@@ -31,7 +31,7 @@ local function TextColor(text, color)
 end
 
 local function TextIcon(icon, size)
-    size = size and size or 16
+    size = size and size or 14
     return "|T" .. icon .. ":" .. size .. "|t"
 end
 
@@ -95,23 +95,13 @@ function ns:EnsureMacro()
     end
 end
 
-local function RunsUntil95(chance, bound)
-    bound = bound and bound or 300
-    for i = 1, bound do
-        local percentage = 1 - ((1 - chance / 100) ^ i)
-        if percentage > 0.95 then
-            -- return percentage * 100
-            return i
-        end
-    end
-    -- return string.format("%.2f", (1 - ((1 - chance) ^ bound)) * 100 .. "")
-    return bound
-end
-
 local function CustomReplacements(text)
     text = string.gsub(text, "(Secret Fish Goggles)", TextColor("[%1]", "0070dd") .. " " .. TextIcon(133023))
     text = string.gsub(text, "(Hyper%-Compressed Ocean)", TextColor("[%1]", "0070dd") .. " " .. TextIcon(132852))
+    text = string.gsub(text, "( Secret Fish )", TextColor(" %1 ", "ffd000"))
     text = string.gsub(text, "(The Other Place)", TextIcon(368364) .. TextColor("[%1]", "ffff00"))
+    text = string.gsub(text, "(Painted Green)", TextIcon(237159) .. TextColor("[%1]", "ffd000"))
+    text = string.gsub(text, "(Blueprint%: Personal Time Displacer)", TextIcon(2915721) .. TextColor("[%1]", "0070dd"))
     return text
 end
 
@@ -222,16 +212,20 @@ function ns:BuildWindow()
     local Relative = Content
     local Offset = -small
 
+    -- Intro
+    local Intros = ns:CreateNotes(Parent, Relative, Offset, {L.Intro1, L.Intro2})
+    Relative = Intros
+
     -- Loop through Achievements
     for _, achievement in ipairs(achievements) do
-        if achievement.pre then
-            local AchievementPre = ns:CreateNotes(Parent, Relative, Offset, achievement.pre)
-            Relative = AchievementPre
-            Offset = -gigantic
-        end
+        Offset = -gigantic
         local Achievement = ns:CreateAchievement(Parent, Relative, Offset, achievement)
         Relative = Achievement
         Offset = -large
+        if achievement.pre then
+            local AchievementPre = ns:CreateNotes(Parent, Relative, Offset, achievement.pre)
+            Relative = AchievementPre
+        end
         -- Loop through Criteria
         for i, criteria in ipairs(achievement.criteria) do
             if criteria.pre then
@@ -252,8 +246,12 @@ function ns:BuildWindow()
             local AchievementPost = ns:CreateNotes(Parent, Relative, Offset, achievement.post)
             Relative = AchievementPost
         end
-        Offset = -gigantic
     end
+
+    -- Outro
+    local Outros = ns:CreateNotes(Parent, Relative, Offset, {L.Outro})
+    Relative = Outros
+
     local Spacer = ns:CreateSpacer(Parent, Relative)
 end
 
@@ -267,6 +265,15 @@ function ns:CreateAchievement(Parent, Relative, Offset, achievement)
     Achievement:SetJustifyH("LEFT")
     Achievement:SetText(name)
     Relative = Achievement
+
+    if wasEarnedByMe then
+        local Completed = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        Completed:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
+        Completed:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
+        Completed:SetJustifyH("LEFT")
+        Completed:SetText("Completed: " .. TextColor("20" .. year .. "/" .. (month < 10 and "0" or "") .. month .. "/" .. (day < 10 and "0" or "") .. day))
+        Relative = Completed
+    end
 
     local Description = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     Description:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
@@ -295,15 +302,6 @@ function ns:CreateAchievement(Parent, Relative, Offset, achievement)
         end)
     end
 
-    if completed then
-        local Completed = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        Completed:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
-        Completed:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
-        Completed:SetJustifyH("LEFT")
-        Completed:SetText("Completed: " .. TextColor(year .. "/" .. month .. "/" .. day))
-        Relative = Completed
-    end
-
     return Relative
 end
 
@@ -313,66 +311,97 @@ function ns:CreateCriteria(Parent, Relative, Offset, achievement, i, criteria)
     Criteria:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
     Criteria:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
     Criteria:SetJustifyH("LEFT")
+    Relative = Criteria
 
     local CriteriaAnchor = CreateFrame("Button", nil, Parent)
     CriteriaAnchor:SetAllPoints(Criteria)
     Criteria.anchor = CriteriaAnchor
+
+    if criteria.zone then
+        local CriteriaLocation = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        CriteriaLocation:SetPoint("TOPLEFT", Criteria, "BOTTOMLEFT", 0, -small)
+        CriteriaLocation:SetPoint("TOPRIGHT", Criteria, "BOTTOMRIGHT", 0, -small)
+        CriteriaLocation:SetJustifyH("LEFT")
+        Criteria.location = CriteriaLocation
+        Relative = CriteriaLocation
+        local CriteriaLocationAnchor = CreateFrame("Button", nil, Parent)
+        CriteriaLocationAnchor:SetAllPoints(CriteriaLocation)
+        Criteria.locationAnchor = CriteriaLocationAnchor
+    end
 
     Criteria.achievement = achievement
     Criteria.i = i
     Criteria.data = criteria
     ns:Register("Criteria", Criteria)
 
-    return Criteria
+    return Relative
 end
 
 function ns:RefreshCriteria()
     if not ns.Criteria then
-        C_Timer.After(0.5, function()
+        C_Timer.After(1, function()
             ns:RefreshCriteria()
         end)
         return
     end
     for _, Criteria in ipairs(ns.Criteria) do
         local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID, eligible = GetAchievementCriteriaInfoByID(Criteria.achievement.id, Criteria.data.id)
-        local dropchance = Criteria.data.dropchance or 1
         local zoneID = Criteria.data.zone or 1462
         local zone = zones[zoneID] or zones["Generic"]
         local zoneName = C_Map.GetMapInfo(zoneID).name
         local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
-        local Item = Item:CreateFromItemID(Criteria.data.item)
-        Item:ContinueOnItemLoad(function()
+        local zoneColor = zone.color or "ffffff"
+        local ItemCache = Item:CreateFromItemID(Criteria.data.item)
+        ItemCache:ContinueOnItemLoad(function()
             local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
             local onQuest = Criteria.data.quest and C_QuestLog.IsOnQuest(Criteria.data.quest) or false
-            local c = {}
-            Criteria:SetText((completed and checkmark or onQuest and turnin or quest) .. "  " .. Criteria.i .. ". " .. itemLink .. " " .. TextIcon(itemTexture))
-            if Criteria.data.waypoint then
-                local waypoint = type(Criteria.data.waypoint) == "table" and Criteria.data.waypoint[1] or Criteria.data.waypoint
-                for d in tostring(waypoint):gmatch("[0-9][0-9]") do
-                    tinsert(c, d)
-                end
-                Criteria.anchor:SetScript("OnClick", function()
-                    ns:PrettyPrint(itemLink .. "\n|cffffd100|Hworldmap:" .. zoneID .. ":" .. c[1] .. c[2] .. ":" .. c[3] .. c[4] .. "|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zone.color .. zoneName .. "|r  |cffeeeeee" .. c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4] .. "|r]|h|r")
-                    C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
-                    C_SuperTrack.SetSuperTrackedUserWaypoint(true)
-                end)
-            end
+
+            Criteria:SetText((onQuest and turnin or completed and checkmark or quest) .. "  " .. Criteria.i .. ". " .. itemLink .. " " .. TextIcon(itemTexture))
+
             Criteria.anchor:SetScript("OnEnter", function(self)
                 GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-                if Criteria.data.waypoint then
-                    GameTooltip:SetText("Create Map Pin: " .. TextColor(itemName))
-                    GameTooltip:AddLine("\n" .. zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" @ ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
-                else
-                    GameTooltip:SetText(TextColor(itemName))
-                    -- GameTooltip:AddLine("\n" .. TextColor("Drops any place at any time.", "bbbbbb"))
-                end
-                if Criteria.data.dropchance then
-                    GameTooltip:AddLine("\nDrop Chance: " .. TextColor(Criteria.data.dropchance .. "%") ..  TextColor(" (~95% after " .. RunsUntil95(Criteria.data.dropchance) .. " casts)", "bbbbbb"))
-                end
-                -- GameTooltip:SetHyperlink(itemLink)
+                GameTooltip:SetHyperlink(itemLink)
                 GameTooltip:Show()
             end)
             Criteria.anchor:SetScript("OnLeave", HideTooltip)
+            Criteria.anchor:SetScript("OnClick", function()
+                print(itemLink)
+            end)
+
+            if Criteria.location and Criteria.locationAnchor then
+                local c = {}
+                if Criteria.data.waypoint then
+                    local waypoint = type(Criteria.data.waypoint) == "table" and Criteria.data.waypoint[1] or Criteria.data.waypoint
+                    for split in tostring(waypoint):gmatch("[0-9][0-9]") do
+                        table.insert(c, split)
+                    end
+                    Criteria.location:SetText("      " .. TextColor(zoneName, zone.color) .. TextColor(" ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
+                else
+                    Criteria.location:SetText("      " .. TextColor(zoneName, zone.color) .. TextColor(" - ", "bbbbbb") .. TextColor(L.ZoneWide))
+                end
+                Criteria.locationAnchor:SetScript("OnEnter", function(self)
+                    GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+                    if Criteria.data.waypoint then
+                        GameTooltip:SetText("Create Map Pin: " .. TextColor(itemName))
+                        GameTooltip:AddLine("\n" .. zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
+                    else
+                        GameTooltip:SetText(TextColor(itemName))
+                        GameTooltip:AddLine("\n" .. TextColor(L.DropsAnywhere .. ":  " .. zoneIcon .. TextColor(zoneName, zone.color), "bbbbbb"))
+                    end
+                    if Criteria.data.dropchance then
+                        GameTooltip:AddLine("\n" .. L.DropChance .. ":  " .. TextColor(Criteria.data.dropchance .. "% ") ..  TextColor("(" .. L.Attempts .. ")", "bbbbbb"))
+                    end
+                    GameTooltip:Show()
+                end)
+                Criteria.locationAnchor:SetScript("OnLeave", HideTooltip)
+                if Criteria.data.waypoint then
+                    Criteria.locationAnchor:SetScript("OnClick", function()
+                        ns:PrettyPrint(itemLink .. "\n|cffffd100|Hworldmap:" .. zoneID .. ":" .. c[1] .. c[2] .. ":" .. c[3] .. c[4] .. "|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zoneColor .. zoneName .. "|r  |cffeeeeee" .. c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4] .. "|r]|h|r")
+                        C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
+                        C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+                    end)
+                end
+            end
         end)
     end
 end

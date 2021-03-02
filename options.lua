@@ -115,6 +115,27 @@ function ns:BuildOptions()
         end
     end
 
+    local SupportHeading = Options:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    SupportHeading:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -gigantic)
+    SupportHeading:SetJustifyH("LEFT")
+    SupportHeading:SetText(_G.GAMEMENU_HELP .. ":")
+    previous = SupportHeading
+
+    local Support1 = Options:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    Support1:SetPoint("TOPLEFT", SupportHeading, "BOTTOMLEFT", 0, -large)
+    Support1:SetJustifyH("LEFT")
+    Support1:SetText("|cffffffff" .. string.format(L.Support1, ns.name) .. "|r")
+
+    local Support2 = Options:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    Support2:SetPoint("TOPLEFT", Support1, "BOTTOMLEFT", 0, -large)
+    Support2:SetJustifyH("LEFT")
+    Support2:SetText("|cffffffff" .. L.Support2 .. "|r")
+
+    local Support3 = Options:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    Support3:SetPoint("TOPLEFT", Support2, "BOTTOMLEFT", 0, -large)
+    Support3:SetJustifyH("LEFT")
+    Support3:SetText("|cffffffff" .. string.format(L.Support3, ns.discord) .. "|r")
+
     RefreshControls(Options.Controls)
     ns.Options = Options
 end

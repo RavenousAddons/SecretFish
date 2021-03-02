@@ -6,6 +6,7 @@ function SecretFish_OnLoad(self)
     self:RegisterEvent("CRITERIA_COMPLETE")
     self:RegisterEvent("CRITERIA_EARNED")
     self:RegisterEvent("CRITERIA_UPDATE")
+    self:RegisterEvent("QUEST_ACCEPTED")
 end
 
 function SecretFish_OnEvent(self, event, arg, ...)
@@ -24,7 +25,7 @@ function SecretFish_OnEvent(self, event, arg, ...)
         end
         SECRETFISH_version = ns.version
         self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    elseif event == "CRITERIA_COMPLETE" or event == "CRITERIA_EARNED" or event == "CRITERIA_UPDATE" then
+    elseif event == "CRITERIA_COMPLETE" or event == "CRITERIA_EARNED" or event == "CRITERIA_UPDATE" or event == "QUEST_ACCEPTED" then
         ns:RefreshCriteria()
     end
 end
