@@ -17,7 +17,6 @@ L.NoMacroSpace = "Unfortunately, you don't have enough global macro space for th
 L.SupportHeading = "Help and Support:"
 L.Support1 = "This Addon creates and maintains a macro called |r%s|cffffffff for you under |rGeneral Macros|cffffffff." -- ns.name
 L.Support2 = "Check out the Addon on |rGitHub|cffffffff, |rWoWInterface|cffffffff, or |rCurse|cffffffff for more info and support!"
-L.Support3 = "You can also get help directly from the author on Discord: |r%s|cffffffff" -- ns.discord
 L.Defaults = {
     {
         var = "macro",
@@ -39,7 +38,7 @@ L.NightTypePre = "Can only be acquired during the night (server time):"
 L.DayTypePre = "Can only be acquired during the day (server time):"
 L.KirinTorClownPost = "Broken Isles/Northrend"
 L.PrisonFishPost = "Make sure you're in the PVP zone!"
-L.GhostTypePre = "These next 4 can only be acquired while you are |cffff6666dead|r, and the best place to do so is in Broken Isles Dalaran, behind the southern bank:"
+L.GhostTypePre = "These next 4 can only be acquired while you are |cffff6666dead|r, and the best place to do so is in Broken Isles Dalaran, behind the southern bank (although |ffffc478Shadowlands|r zones also work):"
 L.GreenRoughyPre = "Can only be acquired while you have the Painted Green Buff:"
 L.DisplacedScrapfinPre = "Can only be acquired in the alternate version of Mechagon as part of the daily quest, The Other Place, from Chromie:"
 L.DisplacedScrapfinPost = "While you're doing the daily quest, you can farm any of the mobs in the alternate version of Mechagon for the Blueprint: Personal Time Displacer."
