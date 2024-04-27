@@ -311,7 +311,7 @@ ns.data = {
         {
             -- Secretest Fish (NOT AN ACHIEVEMENT)
             name = "Secretest Fish",
-            description = "Find and deliver this fish to Angler Danielle.",
+            description = "Find this fish using your Secret Fish Goggles in any Shadowlands zone and deliver it to Angler Danielle on Mechagon Island.",
             reward = 161475,
             pre = { L.Achievement3Pre1 },
             criteria = {
@@ -319,6 +319,7 @@ ns.data = {
                     -- Secretest Fish
                     quest_id = 51355,
                     item = 158932,
+                    zone = 1550,
                 },
             },
         },
@@ -406,6 +407,10 @@ ns.data = {
             -- Stormsong Valley
             color = "d7d4be",
             icon = "2125382",
+        },
+        [1550] = {
+            -- Shadowlands (as a whole)
+            color = "ffc478",
         },
     },
 }
