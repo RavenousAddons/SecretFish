@@ -1,19 +1,23 @@
 local ADDON_NAME, ns = ...
 local L = ns.L
 
+-- Reference default values and data tables.
+local defaults = ns.data.defaults
 local achievements = ns.data.achievements
 local zones = ns.data.zones
 
-local width = 300
-local height = 400
-
+-- Set up sizes for spacing.
 local small = 6
 local medium = 12
 local large = 16
 local gigantic = 24
 
+-- Shorten API references.
+local CM = C_Map
+local CST = C_SuperTrack
+
 ---
--- Local Functions
+--- Helper Functions
 ---
 
 local function contains(table, input)
@@ -39,6 +43,13 @@ local quest = TextIcon(132049)
 local turnin = TextIcon(132048)
 local checkmark = TextIcon(628564)
 
+-- Set default values for options which are not yet set.
+local function RegisterDefaultOption(key, value)
+    if RAV_data.options[key] == nil then
+        RAV_data.options[key] = value
+    end
+end
+
 local function HideTooltip()
     GameTooltip:Hide()
 end
@@ -47,8 +58,34 @@ end
 -- Global Functions
 ---
 
+-- Format AddOn messages.
+function ns:PrettyMessage(message)
+    return "|cff" .. ns.color .. ns.name .. ":|r " .. message
+end
+
+-- Print an AddOn message.
 function ns:PrettyPrint(message)
-    DEFAULT_CHAT_FRAME:AddMessage("|cff" .. ns.color .. ns.name .. ":|r " .. message)
+    DEFAULT_CHAT_FRAME:AddMessage(ns:PrettyMessage(message))
+end
+
+-- Set up a data object to keep track of AddOn information.
+function ns:SetDefaultSettings()
+    if SECRETFISH_data == nil then
+        SECRETFISH_data = {}
+    end
+    if SECRETFISH_data.options == nil then
+        SECRETFISH_data.options = {}
+    end
+    for k, v in pairs(defaults) do
+        RegisterDefaultOption(k, v)
+    end
+    SECRETFISH_data.data = ns.data
+end
+
+-- Open the AddOn Settings page
+function ns:OpenSettings()
+    PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
+    Settings.OpenToCategory(ns.Settings:GetID())
 end
 
 function ns:ToggleWindow(frame, force)
@@ -96,12 +133,14 @@ function ns:EnsureMacro()
 end
 
 local function CustomReplacements(text)
-    text = string.gsub(text, "(Secret Fish Goggles)", TextColor("[%1]", "0070dd") .. " " .. TextIcon(133023))
-    text = string.gsub(text, "(Hyper%-Compressed Ocean)", TextColor("[%1]", "0070dd") .. " " .. TextIcon(132852))
+    text = string.gsub(text, "(Secret Fish Goggles)", TextIcon(133023) .. " " .. TextColor("[%1]", "0070dd"))
+    text = string.gsub(text, "(Hyper%-Compressed Ocean)", TextIcon(132852) .. " " .. TextColor("[%1]", "0070dd"))
+    text = string.gsub(text, "(Secret Fish Lure)", TextIcon(1405811) .. " " .. TextColor("[%1]", "0070dd"))
+    text = string.gsub(text, "(The Other Place)", TextIcon(368364) .. " " .. TextColor("[%1]", "ffff00"))
+    text = string.gsub(text, "(Painted Green)", TextIcon(237159) .. " " .. TextColor("[%1]", "ffd000"))
+    text = string.gsub(text, "(Blueprint%: Personal Time Displacer)", TextIcon(2915721) .. " " .. TextColor("[%1]", "0070dd"))
+    text = string.gsub(text, "(Angler Danielle)", TextColor("%1", "ffff00"))
     text = string.gsub(text, "( Secret Fish )", TextColor(" %1 ", "ffd000"))
-    text = string.gsub(text, "(The Other Place)", TextIcon(368364) .. TextColor("[%1]", "ffff00"))
-    text = string.gsub(text, "(Painted Green)", TextIcon(237159) .. TextColor("[%1]", "ffd000"))
-    text = string.gsub(text, "(Blueprint%: Personal Time Displacer)", TextIcon(2915721) .. TextColor("[%1]", "0070dd"))
     return text
 end
 
@@ -213,7 +252,7 @@ function ns:BuildWindow()
     local Offset = -small
 
     -- Intro
-    local Intros = ns:CreateNotes(Parent, Relative, Offset, {L.Intro1, L.Intro2})
+    local Intros = ns:CreateNotes(Parent, Relative, Offset, {L.Intro})
     Relative = Intros
 
     -- Loop through Achievements
@@ -254,6 +293,12 @@ end
 function ns:CreateAchievement(Parent, Relative, Offset, achievement)
     local id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(achievement.id)
 
+    if achievement.nullify then
+        name = achievement.name
+        description = achievement.description ~= nil and achievement.description or description
+        wasEarnedByMe = false
+    end
+
     Offset = Offset and Offset or 0
     local Achievement = Parent:CreateFontString(ADDON_NAME .. "Achievement" .. id, "ARTWORK", "GameFontNormalLarge")
     Achievement:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
@@ -261,6 +306,18 @@ function ns:CreateAchievement(Parent, Relative, Offset, achievement)
     Achievement:SetJustifyH("LEFT")
     Achievement:SetText(name)
     Relative = Achievement
+
+    local ItemCache = Item:CreateFromItemID(achievement.reward)
+    ItemCache:ContinueOnItemLoad(function()
+        local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = GetItemInfo(achievement.reward)
+
+        local Reward = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        Reward:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
+        Reward:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
+        Reward:SetJustifyH("LEFT")
+        Reward:SetText("Rewards: " .. TextIcon(rewardTexture) .. " " .. rewardLink)
+        Relative = Reward
+    end)
 
     if wasEarnedByMe then
         local Completed = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -271,31 +328,34 @@ function ns:CreateAchievement(Parent, Relative, Offset, achievement)
         Relative = Completed
     end
 
-    local Description = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    Description:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
-    Description:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
-    Description:SetJustifyH("LEFT")
-    Description:SetText(TextColor("\"" .. CustomReplacements(description) .. "\""))
-    Relative = Description
+    if description then
+        local Description = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        Description:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
+        Description:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
+        Description:SetJustifyH("LEFT")
+        Description:SetText(TextColor(CustomReplacements(description)))
+        Relative = Description
 
-    if string.match(description, "Danielle") then
-        local zone = zones[1462]
-        local zoneName = C_Map.GetMapInfo(1462).name
-        local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
-        local DescriptionAnchor = CreateFrame("Button", nil, Parent)
-        DescriptionAnchor:SetAllPoints(Description)
-        DescriptionAnchor:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-            GameTooltip:SetText("Map Pin: " .. TextColor("Danielle"))
-            GameTooltip:AddLine(zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" 37.0, 47.2"))
-            GameTooltip:Show()
-        end)
-        DescriptionAnchor:SetScript("OnLeave", HideTooltip)
-        DescriptionAnchor:SetScript("OnClick", function()
-            ns:PrettyPrint("|cffffd100|Hworldmap:1462:3700:4720|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zone.color .. zoneName .. "|r |cffeeeeee37.0, 47.2|r]|h|r")
-            C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(1462, "0.3700", "0.4720"))
-            C_SuperTrack.SetSuperTrackedUserWaypoint(true)
-        end)
+
+        if string.match(description, "Angler Danielle") then
+            local zone = zones[1462]
+            local zoneName = C_Map.GetMapInfo(1462).name
+            local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
+            local DescriptionAnchor = CreateFrame("Button", nil, Parent)
+            DescriptionAnchor:SetAllPoints(Description)
+            DescriptionAnchor:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+                GameTooltip:SetText("Map Pin: " .. TextColor("Angler Danielle"))
+                GameTooltip:AddLine(zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" 37.0, 47.2"))
+                GameTooltip:Show()
+            end)
+            DescriptionAnchor:SetScript("OnLeave", HideTooltip)
+            DescriptionAnchor:SetScript("OnClick", function()
+                ns:PrettyPrint("|cffffd100|Hworldmap:1462:3700:4720|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zone.color .. zoneName .. "|r |cffeeeeee37.0, 47.2|r]|h|r")
+                C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(1462, "0.3700", "0.4720"))
+                C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+            end)
+        end
     end
 
     return Relative
@@ -352,7 +412,7 @@ function ns:RefreshCriteria()
             local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
             local onQuest = Criteria.data.quest and C_QuestLog.IsOnQuest(Criteria.data.quest) or false
 
-            Criteria:SetText((onQuest and turnin or completed and checkmark or quest) .. "  " .. Criteria.i .. ". " .. itemLink .. " " .. TextIcon(itemTexture))
+            Criteria:SetText((onQuest and turnin or completed and checkmark or quest) .. "  " .. Criteria.i .. ". " .. TextIcon(itemTexture) .. " " .. itemLink)
 
             Criteria.anchor:SetScript("OnEnter", function(self)
                 GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
@@ -392,6 +452,7 @@ function ns:RefreshCriteria()
                 Criteria.locationAnchor:SetScript("OnLeave", HideTooltip)
                 if Criteria.data.waypoint then
                     Criteria.locationAnchor:SetScript("OnClick", function()
+                        print("hello")
                         ns:PrettyPrint(itemLink .. "\n|cffffd100|Hworldmap:" .. zoneID .. ":" .. c[1] .. c[2] .. ":" .. c[3] .. c[4] .. "|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zoneColor .. zoneName .. "|r  |cffeeeeee" .. c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4] .. "|r]|h|r")
                         C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
                         C_SuperTrack.SetSuperTrackedUserWaypoint(true)

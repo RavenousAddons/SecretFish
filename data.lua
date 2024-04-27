@@ -1,21 +1,21 @@
 local ADDON_NAME, ns = ...
 local L = ns.L
 
-ns.defaults = {
-    macro = true,
-    scale = 1,
-    windowPosition = "CENTER",
-    windowX = 0,
-    windowY = 0,
-    windowWidth = 420,
-    windowHeight = 360,
-}
-
 ns.data = {
+    defaults = {
+        macro = true,
+        scale = 1,
+        windowPosition = "CENTER",
+        windowX = 0,
+        windowY = 0,
+        windowWidth = 420,
+        windowHeight = 360,
+    },
     achievements = {
         {
             -- Secret Fish of Mechagon
             id = 13489,
+            reward = 167698,
             pre = { L.Achievement1Pre },
             criteria = {
                 {
@@ -111,6 +111,7 @@ ns.data = {
         {
             -- Secret Fish and Where to Find Them
             id = 13502,
+            reward = 168016,
             pre = { L.Achievement2Pre1, L.Achievement2Pre2, L.Achievement2Pre3, L.Achievement2Pre4 },
             criteria = {
                 {
@@ -313,8 +314,23 @@ ns.data = {
             },
             post = { L.Achievement2Post },
         },
+        {
+            -- Secretest Fish (NOT AN ACHIEVEMENT)
+            id = 13502,
+            nullify = true,
+            name = "Secretest Fish",
+            description = "Find and deliver this fish to Angler Danielle.",
+            reward = 161475,
+            pre = { L.Achievement3Pre1 },
+            criteria = {
+                {
+                    -- Secretest Fish
+                    id = 51355,
+                    item = 158932,
+                },
+            },
+        },
     },
-    -- TODO add all zones
     zones = {
         ["Generic"] = {
             color = "eeeeee",
