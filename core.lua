@@ -15,9 +15,9 @@ function SecretFish_OnEvent(self, event, arg, ...)
         ns:CreateSettingsPanel()
         if not ns.version:match("-") then
             if not SECRETFISH_version then
-                ns:PrettyPrint(L.Install:format(ns.color, ns.version))
+                ns:PrettyPrint(L.Install:format(ns.color, ns.version, ns.command))
             elseif SECRETFISH_version ~= ns.version then
-                ns:PrettyPrint(L.Update:format(ns.color, ns.version))
+                ns:PrettyPrint(L.Update:format(ns.color, ns.version, ns.command))
             end
             SECRETFISH_version = ns.version
         end
@@ -30,15 +30,20 @@ function SecretFish_OnEvent(self, event, arg, ...)
     end
 end
 
-function SecretFish_OnAddonCompartmentClick()
-    ns:OpenSettings()
+function SecretFish_OnAddonCompartmentClick(addonName, buttonName)
+    if buttonName == "RightButton" then
+        ns:OpenSettings()
+        return
+    end
+    ns:ToggleWindow(ns.Window)
 end
 
 function SecretFish_OnAddonCompartmentEnter()
     GameTooltip:SetOwner(DropDownList1)
     GameTooltip:SetText(ns.name .. "        v" .. ns.version)
     GameTooltip:AddLine(" ", 1, 1, 1, true)
-    GameTooltip:AddLine(L.AddonCompartmentTooltip, 1, 1, 1, true)
+    GameTooltip:AddLine(L.AddonCompartmentTooltip1, 1, 1, 1, true)
+    GameTooltip:AddLine(L.AddonCompartmentTooltip2, 1, 1, 1, true)
     GameTooltip:Show()
 end
 

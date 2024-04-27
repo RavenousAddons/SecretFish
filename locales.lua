@@ -23,7 +23,7 @@ L.Achievement2Pre1 = "Despite being about fishing, you actually don't need to do
 L.Achievement2Pre2 = "To collect Secret Fish for this achievement, you'll need to use the Secret Fish Goggles, applying its buff to yourself, and Secret Fish (looks like a small bubble) will spawn within 40 yards of you every ~30 seconds. It is recommended to farm these that you find an open area or steep ledge to make view of spawns clear and quick."
 L.Achievement2Pre3 = "Important to note is that Secret Fish can be seen and interacted with by group members, so grouping with others using their Secret Fish Goggles will increase your spawn rates!"
 L.Achievement2Pre4 = "These first 8 can be acquired in any zone at any time, so it is recommended you prioritise the Secret Fish after, and you will pick these up as you go:"
-L.Achievement2Post = "Now go out and have fun with your Hyper-Compressed Ocean!"
+L.Achievement2Post = "When you've caught all 30, you will be awarded the Hyper-Compressed Ocean!"
 L.Achievement3Pre1 = "Note: This is NOT an achievement. Whether or not there is a secret-related purpose for the Secret Fish Lure is still unknown."
 L.SpecificZoneTypePre = "These next 14 can only be acquired in specific zones:"
 L.NightTypePre = "Can only be acquired during the night (server time):"
@@ -34,11 +34,14 @@ L.GhostTypePre = "These next 4 can only be acquired while you are |cffff6666dead
 L.GreenRoughyPre = "Can only be acquired while you have the Painted Green Buff:"
 L.DisplacedScrapfinPre = "Can only be acquired in the alternate version of Mechagon as part of the daily quest, The Other Place, from Chromie:"
 L.DisplacedScrapfinPost = "While you're doing the daily quest, you can farm any of the mobs in the alternate version of Mechagon for the Blueprint: Personal Time Displacer."
+L.Completed = "Completed"
+L.Reward = "Reward"
 L.DropsAnywhere = "Drops anywhere"
 L.DropChance = "Drop Chance"
 L.ZoneWide = "Zone-wide"
 L.Attempts = "~95% after 300 attempts"
-L.AddonCompartmentTooltip = "Click: Open Settings"
+L.AddonCompartmentTooltip1 = "Left-Click: Open Window"
+L.AddonCompartmentTooltip2 = "Right-Click: Open Settings"
 
 -- Check locale and assign appropriate
 local CURRENT_LOCALE = GetLocale()

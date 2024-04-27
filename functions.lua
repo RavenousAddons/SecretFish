@@ -3,7 +3,7 @@ local L = ns.L
 
 -- Reference default values and data tables.
 local defaults = ns.data.defaults
-local achievements = ns.data.achievements
+local sections = ns.data.sections
 local zones = ns.data.zones
 
 -- Set up sizes for spacing.
@@ -15,6 +15,7 @@ local gigantic = 24
 -- Shorten API references.
 local CM = C_Map
 local CST = C_SuperTrack
+local CQL = C_QuestLog
 
 ---
 --- Helper Functions
@@ -215,9 +216,7 @@ function ns:BuildWindow()
     OptionsButton:SetHeight(18)
     OptionsButton:RegisterForClicks("LeftButtonUp")
     OptionsButton:SetScript("OnMouseDown", function(self, button)
-        PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
-        InterfaceOptionsFrame_OpenToCategory(ns.Options)
-        InterfaceOptionsFrame_OpenToCategory(ns.Options)
+        ns:OpenSettings()
     end)
     OptionsButton:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
@@ -255,23 +254,23 @@ function ns:BuildWindow()
     local Intros = ns:CreateNotes(Parent, Relative, Offset, {L.Intro})
     Relative = Intros
 
-    -- Loop through Achievements
-    for _, achievement in ipairs(achievements) do
+    -- Loop through Sections
+    for _, section in ipairs(sections) do
         Offset = -gigantic
-        local Achievement = ns:CreateAchievement(Parent, Relative, Offset, achievement)
+        local Achievement = ns:CreateSection(Parent, Relative, Offset, section)
         Relative = Achievement
         Offset = -large
-        if achievement.pre then
-            local AchievementPre = ns:CreateNotes(Parent, Relative, Offset, achievement.pre)
+        if section.pre then
+            local AchievementPre = ns:CreateNotes(Parent, Relative, Offset, section.pre)
             Relative = AchievementPre
         end
         -- Loop through Criteria
-        for i, criteria in ipairs(achievement.criteria) do
+        for i, criteria in ipairs(section.criteria) do
             if criteria.pre then
                 local CriteriaPre = ns:CreateNotes(Parent, Relative, Offset, criteria.pre)
                 Relative = CriteriaPre
             end
-            local Criteria = ns:CreateCriteria(Parent, Relative, Offset, achievement, i, criteria)
+            local Criteria = ns:CreateCriteria(Parent, Relative, Offset, section, i, criteria)
             Relative = Criteria
             if criteria.post then
                 Offset = -small
@@ -280,9 +279,9 @@ function ns:BuildWindow()
                 Offset = -large
             end
         end
-        if achievement.post then
+        if section.post then
             Offset = -medium
-            local AchievementPost = ns:CreateNotes(Parent, Relative, Offset, achievement.post)
+            local AchievementPost = ns:CreateNotes(Parent, Relative, Offset, section.post)
             Relative = AchievementPost
         end
     end
@@ -290,41 +289,56 @@ function ns:BuildWindow()
     local Spacer = ns:CreateSpacer(Parent, Relative)
 end
 
-function ns:CreateAchievement(Parent, Relative, Offset, achievement)
-    local id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(achievement.id)
+function ns:CreateSection(Parent, Relative, Offset, section)
+    local name, completed, month, day, year, description
 
-    if achievement.nullify then
-        name = achievement.name
-        description = achievement.description ~= nil and achievement.description or description
-        wasEarnedByMe = false
+    if section.achievement_id then
+        _, name, _, completed, month, day, year, description = GetAchievementInfo(section.achievement_id)
+    else
+        name = section.name
+        description = section.description
     end
 
     Offset = Offset and Offset or 0
-    local Achievement = Parent:CreateFontString(ADDON_NAME .. "Achievement" .. id, "ARTWORK", "GameFontNormalLarge")
-    Achievement:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
-    Achievement:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
-    Achievement:SetJustifyH("LEFT")
-    Achievement:SetText(name)
-    Relative = Achievement
+    local Section = Parent:CreateFontString(ADDON_NAME .. "Section", "ARTWORK", "GameFontNormalLarge")
+    Section:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
+    Section:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
+    Section:SetJustifyH("LEFT")
+    Section:SetText(name)
+    Relative = Section
 
-    local ItemCache = Item:CreateFromItemID(achievement.reward)
+    local ItemCache = Item:CreateFromItemID(section.reward)
     ItemCache:ContinueOnItemLoad(function()
-        local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = GetItemInfo(achievement.reward)
+        local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = GetItemInfo(section.reward)
 
         local Reward = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         Reward:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
         Reward:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
         Reward:SetJustifyH("LEFT")
-        Reward:SetText("Rewards: " .. TextIcon(rewardTexture) .. " " .. rewardLink)
+        Reward:SetText(L.Reward .. ": " .. TextIcon(rewardTexture) .. " " .. rewardLink)
         Relative = Reward
+
+        local RewardAnchor = CreateFrame("Button", nil, Parent)
+        RewardAnchor:SetAllPoints(Reward)
+        Reward.anchor = RewardAnchor
+
+        Reward.anchor:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+            GameTooltip:SetHyperlink(rewardLink)
+            GameTooltip:Show()
+        end)
+        Reward.anchor:SetScript("OnLeave", HideTooltip)
+        Reward.anchor:SetScript("OnClick", function()
+            print(rewardLink)
+        end)
     end)
 
-    if wasEarnedByMe then
+    if completed then
         local Completed = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         Completed:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
         Completed:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
         Completed:SetJustifyH("LEFT")
-        Completed:SetText("Completed: " .. TextColor("20" .. year .. "/" .. (month < 10 and "0" or "") .. month .. "/" .. (day < 10 and "0" or "") .. day))
+        Completed:SetText(L.Completed .. ": " .. TextColor("20" .. year .. "/" .. (month < 10 and "0" or "") .. month .. "/" .. (day < 10 and "0" or "") .. day))
         Relative = Completed
     end
 
@@ -361,9 +375,11 @@ function ns:CreateAchievement(Parent, Relative, Offset, achievement)
     return Relative
 end
 
-function ns:CreateCriteria(Parent, Relative, Offset, achievement, i, criteria)
+function ns:CreateCriteria(Parent, Relative, Offset, section, i, criteria)
+    local id = criteria.criteria_id ~= nil and criteria.criteria_id or criteria.quest_id
+
     Offset = Offset and Offset or 0
-    local Criteria = Parent:CreateFontString(ADDON_NAME .. "Criteria" .. criteria.id, "ARTWORK", "GameFontNormal")
+    local Criteria = Parent:CreateFontString(ADDON_NAME .. "Criteria" .. id, "ARTWORK", "GameFontNormal")
     Criteria:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
     Criteria:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
     Criteria:SetJustifyH("LEFT")
@@ -385,7 +401,7 @@ function ns:CreateCriteria(Parent, Relative, Offset, achievement, i, criteria)
         Criteria.locationAnchor = CriteriaLocationAnchor
     end
 
-    Criteria.achievement = achievement
+    Criteria.section = section
     Criteria.i = i
     Criteria.data = criteria
     ns:Register("Criteria", Criteria)
@@ -401,7 +417,14 @@ function ns:RefreshCriteria()
         return
     end
     for _, Criteria in ipairs(ns.Criteria) do
-        local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID, eligible = GetAchievementCriteriaInfoByID(Criteria.achievement.id, Criteria.data.id)
+        local completed
+
+        if Criteria.data.criteria_id then
+            _, _, completed = GetAchievementCriteriaInfoByID(Criteria.section.achievement_id, Criteria.data.criteria_id)
+        else
+            completed = CQL.IsQuestFlaggedCompleted(Criteria.data.quest_id)
+        end
+
         local zoneID = Criteria.data.zone or 1462
         local zone = zones[zoneID] or zones["Generic"]
         local zoneName = C_Map.GetMapInfo(zoneID).name

@@ -11,16 +11,16 @@ ns.data = {
         windowWidth = 420,
         windowHeight = 360,
     },
-    achievements = {
+    sections = {
         {
             -- Secret Fish of Mechagon
-            id = 13489,
+            achievement_id = 13489,
             reward = 167698,
             pre = { L.Achievement1Pre },
             criteria = {
                 {
                     -- Bolted Steelhead
-                    id = 44738,
+                    criteria_id = 44738,
                     quest = 55305,
                     item = 167655,
                     zone = 1462,
@@ -28,7 +28,7 @@ ns.data = {
                 },
                 {
                     -- Energized Lightning Cod
-                    id = 44744,
+                    criteria_id = 44744,
                     quest = 55311,
                     item = 167661,
                     zone = 1462,
@@ -36,7 +36,7 @@ ns.data = {
                 },
                 {
                     -- Solarsprocket Barbel
-                    id = 44745,
+                    criteria_id = 44745,
                     quest = 55312,
                     item = 167662,
                     zone = 1462,
@@ -44,7 +44,7 @@ ns.data = {
                 },
                 {
                     -- Bottom Feeding Stinkfish
-                    id = 44737,
+                    criteria_id = 44737,
                     quest = 55299,
                     item = 167654,
                     zone = 1462,
@@ -53,7 +53,7 @@ ns.data = {
                 },
                 {
                     -- Pong Hopping Springfish
-                    id = 44739,
+                    criteria_id = 44739,
                     quest = 55306,
                     item = 167656,
                     zone = 1462,
@@ -62,7 +62,7 @@ ns.data = {
                 },
                 {
                     -- Shadowy Cave Eel
-                    id = 44740,
+                    criteria_id = 44740,
                     quest = 55307,
                     item = 167657,
                     zone = 1462,
@@ -71,7 +71,7 @@ ns.data = {
                 },
                 {
                     -- Mechanical Blowfish
-                    id = 44741,
+                    criteria_id = 44741,
                     quest = 55308,
                     item = 167658,
                     zone = 1462,
@@ -80,7 +80,7 @@ ns.data = {
                 },
                 {
                     -- Spitting Clownfish
-                    id = 44742,
+                    criteria_id = 44742,
                     quest = 55309,
                     item = 167659,
                     zone = 1462,
@@ -89,7 +89,7 @@ ns.data = {
                 },
                 {
                     -- Sludge-fouled Carp
-                    id = 44743,
+                    criteria_id = 44743,
                     quest = 55310,
                     item = 167660,
                     zone = 1462,
@@ -98,7 +98,7 @@ ns.data = {
                 },
                 {
                     -- Tasty Steelfin
-                    id = 44746,
+                    criteria_id = 44746,
                     quest = 55313,
                     item = 167663,
                     zone = 1462,
@@ -110,205 +110,199 @@ ns.data = {
         },
         {
             -- Secret Fish and Where to Find Them
-            id = 13502,
+            achievement_id = 13502,
             reward = 168016,
             pre = { L.Achievement2Pre1, L.Achievement2Pre2, L.Achievement2Pre3, L.Achievement2Pre4 },
             criteria = {
                 {
                     -- Camouflaged Snark
-                    id = 44805,
+                    criteria_id = 44805,
                     item = 167717,
                 },
                 {
                     -- Deceptive Maw
-                    id = 44808,
+                    criteria_id = 44808,
                     item = 167729,
                 },
                 {
                     -- Inconspicuous Catfish
-                    id = 44812,
+                    criteria_id = 44812,
                     item = 167730,
                 },
                 {
                     -- Unseen Mimmic
-                    id = 44824,
+                    criteria_id = 44824,
                     item = 167716,
                 },
                 {
                     -- Very Tiny Whale
-                    id = 44827,
+                    criteria_id = 44827,
                     item = 167720,
                 },
                 {
                     -- Collectable Saltfin
-                    id = 44806,
+                    criteria_id = 44806,
                     item = 167718,
                 },
                 {
                     -- Travelling Goby
-                    id = 44823,
+                    criteria_id = 44823,
                     item = 167714,
                 },
                 {
                     -- Invisible Smelt
-                    id = 44813,
+                    criteria_id = 44813,
                     item = 167721,
                 },
-
                 {
-                    pre = { L.SpecificZoneTypePre },
                     -- Rotted Blood Cod
-                    id = 44820,
+                    criteria_id = 44820,
                     item = 167712,
                     zone = 863,
                     waypoint = 55305780,
+                    pre = { L.SpecificZoneTypePre },
                 },
                 {
                     -- Jade Story Fish
-                    id = 44815,
+                    criteria_id = 44815,
                     item = 167706,
                     zone = 371,
                 },
                 {
                     -- Thunderous Flounder
-                    id = 44822,
+                    criteria_id = 44822,
                     item = 167723,
                     zone = 504,
                 },
                 {
                     -- Kirin Tor Clown
-                    id = 44816,
+                    criteria_id = 44816,
                     item = 167707,
                     zone = 501,
                     post = { "      |cffbbbbbb" .. L.KirinTorClownPost .. "|r" },
                 },
                 {
                     -- Mechanized Mackerel
-                    id = 44817,
+                    criteria_id = 44817,
                     item = 167705,
                     zone = 1462,
                 },
                 {
                     -- Queen's Delight
-                    id = 44818,
+                    criteria_id = 44818,
                     item = 167728,
                     zone = 1355,
                 },
                 {
                     -- Ancient Mana Fin
-                    id = 44803,
+                    criteria_id = 44803,
                     item = 167708,
                     zone = 680,
                 },
                 {
                     -- Prisoner Fish
-                    id = 44814,
+                    criteria_id = 44814,
                     item = 167722,
                     zone = 244,
                     post = { "      |cffbbbbbb" .. L.PrisonFishPost .. "|r" },
                 },
                 {
                     -- Barbed Fjord Fin
-                    id = 44804,
+                    criteria_id = 44804,
                     item = 167710,
                     zone = 117,
                 },
                 {
                     -- Dead Fel Bone
-                    id = 44807,
+                    criteria_id = 44807,
                     item = 167711,
                     zone = 830,
                     waypoint = 34507648,
                 },
                 {
                     -- Tortollan Tank Dweller
-                    id = 44828,
+                    criteria_id = 44828,
                     item = 167724,
                     zone = 896,
                     waypoint = 18934239,
                 },
                 {
                     -- Thin Air Flounder
-                    id = 45952,
+                    criteria_id = 45952,
                     item = 169897,
                     zone = 379,
                     waypoint = 44555256,
                 },
                 {
                     -- Well Lurker
-                    id = 45953,
+                    criteria_id = 45953,
                     item = 169898,
                     zone = 198,
                     waypoint = 60822586,
                 },
                 {
                     -- Drowned Goldfish
-                    id = 44809,
+                    criteria_id = 44809,
                     item = 167709,
                     zone = 942,
                     waypoint = 45895335,
                 },
-
                 {
-                    pre = { L.NightTypePre },
                     -- Elusive Moonfish
-                    id = 44810,
+                    criteria_id = 44810,
                     item = 167715,
+                    pre = { L.NightTypePre },
                 },
-
                 {
-                    pre = { L.DayTypePre },
                     -- Golden Sunsoaker
-                    id = 44811,
+                    criteria_id = 44811,
                     item = 167719,
+                    pre = { L.DayTypePre },
                 },
-
                 {
-                    pre = { L.GhostTypePre },
                     -- Veiled Ghost
-                    id = 44826,
+                    criteria_id = 44826,
                     item = 167713,
                     zone = 619,
                     waypoint = 45866851,
+                    pre = { L.GhostTypePre },
                 },
                 {
                     -- Deadeye Wally
-                    id = 44821,
+                    criteria_id = 44821,
                     item = 167727,
                     zone = 619,
                     waypoint = 45866851,
                 },
                 {
                     -- Quiet Floater
-                    id = 44819,
+                    criteria_id = 44819,
                     item = 167726,
                     zone = 619,
                     waypoint = 45866851,
                 },
                 {
                     -- Spiritual Salmon
-                    id = 44825,
+                    criteria_id = 44825,
                     item = 167725,
                     zone = 619,
                     waypoint = 45866851,
                 },
-
                 {
-                    pre = { L.GreenRoughyPre },
                     -- Green Roughy
-                    id = 45754,
+                    criteria_id = 45754,
                     item = 169884,
                     zone = 1462,
                     dropchance = 1,
+                    pre = { L.GreenRoughyPre },
                 },
-
                 {
-                    pre = { L.DisplacedScrapfinPre },
                     -- Displaced Scrapfin
-                    id = 45755,
+                    criteria_id = 45755,
                     item = 169870,
                     zone = 1462,
                     dropchance = 1,
+                    pre = { L.DisplacedScrapfinPre },
                     post = { L.DisplacedScrapfinPost },
                 },
             },
@@ -316,8 +310,6 @@ ns.data = {
         },
         {
             -- Secretest Fish (NOT AN ACHIEVEMENT)
-            id = 13502,
-            nullify = true,
             name = "Secretest Fish",
             description = "Find and deliver this fish to Angler Danielle.",
             reward = 161475,
@@ -325,7 +317,7 @@ ns.data = {
             criteria = {
                 {
                     -- Secretest Fish
-                    id = 51355,
+                    quest_id = 51355,
                     item = 158932,
                 },
             },
