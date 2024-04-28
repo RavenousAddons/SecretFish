@@ -16,12 +16,13 @@ ns.data = {
             -- Secret Fish of Mechagon
             achievement_id = 13489,
             reward = 167698,
-            pre = { L.Achievement1Pre },
+            pre = { L.Section1Pre },
+            post = { L.Section1Post },
             criteria = {
                 {
                     -- Bolted Steelhead
                     criteria_id = 44738,
-                    quest = 55305,
+                    quest_id = 55305,
                     item = 167655,
                     zone = 1462,
                     dropchance = 1,
@@ -29,7 +30,7 @@ ns.data = {
                 {
                     -- Energized Lightning Cod
                     criteria_id = 44744,
-                    quest = 55311,
+                    quest_id = 55311,
                     item = 167661,
                     zone = 1462,
                     dropchance = 1,
@@ -37,7 +38,7 @@ ns.data = {
                 {
                     -- Solarsprocket Barbel
                     criteria_id = 44745,
-                    quest = 55312,
+                    quest_id = 55312,
                     item = 167662,
                     zone = 1462,
                     dropchance = 1,
@@ -45,7 +46,7 @@ ns.data = {
                 {
                     -- Bottom Feeding Stinkfish
                     criteria_id = 44737,
-                    quest = 55299,
+                    quest_id = 55299,
                     item = 167654,
                     zone = 1462,
                     waypoint = 79004900,
@@ -54,7 +55,7 @@ ns.data = {
                 {
                     -- Pong Hopping Springfish
                     criteria_id = 44739,
-                    quest = 55306,
+                    quest_id = 55306,
                     item = 167656,
                     zone = 1462,
                     waypoint = 65893030,
@@ -63,7 +64,7 @@ ns.data = {
                 {
                     -- Shadowy Cave Eel
                     criteria_id = 44740,
-                    quest = 55307,
+                    quest_id = 55307,
                     item = 167657,
                     zone = 1462,
                     waypoint = 56822222,
@@ -72,7 +73,7 @@ ns.data = {
                 {
                     -- Mechanical Blowfish
                     criteria_id = 44741,
-                    quest = 55308,
+                    quest_id = 55308,
                     item = 167658,
                     zone = 1462,
                     waypoint = 25007700,
@@ -81,7 +82,7 @@ ns.data = {
                 {
                     -- Spitting Clownfish
                     criteria_id = 44742,
-                    quest = 55309,
+                    quest_id = 55309,
                     item = 167659,
                     zone = 1462,
                     waypoint = 83867258,
@@ -90,7 +91,7 @@ ns.data = {
                 {
                     -- Sludge-fouled Carp
                     criteria_id = 44743,
-                    quest = 55310,
+                    quest_id = 55310,
                     item = 167660,
                     zone = 1462,
                     waypoint = 65005100,
@@ -99,20 +100,20 @@ ns.data = {
                 {
                     -- Tasty Steelfin
                     criteria_id = 44746,
-                    quest = 55313,
+                    quest_id = 55313,
                     item = 167663,
                     zone = 1462,
                     waypoint = 47003700,
                     dropchance = 1,
                 },
             },
-            post = { L.Achievement1Post },
         },
         {
             -- Secret Fish and Where to Find Them
             achievement_id = 13502,
             reward = 168016,
-            pre = { L.Achievement2Pre1, L.Achievement2Pre2, L.Achievement2Pre3, L.Achievement2Pre4 },
+            pre = { L.Section2Pre1, L.Section2Pre2, L.Section2Pre3, L.Section2Pre4 },
+            post = { L.Section2Post },
             criteria = {
                 {
                     -- Camouflaged Snark
@@ -303,23 +304,35 @@ ns.data = {
                     zone = 1462,
                     dropchance = 1,
                     pre = { L.DisplacedScrapfinPre },
-                    post = { L.DisplacedScrapfinPost },
                 },
             },
-            post = { L.Achievement2Post },
         },
         {
-            -- Secretest Fish (NOT AN ACHIEVEMENT)
-            name = "Secretest Fish",
-            description = "Find this fish using your Secret Fish Goggles in any Shadowlands zone and deliver it to Angler Danielle on Mechagon Island.",
+            -- Secretest Fish
+            name = L.SecretestFishName,
+            description = L.SecretestFishDescription,
             reward = 161475,
-            pre = { L.Achievement3Pre1 },
+            pre = { L.Section3Pre1 },
             criteria = {
                 {
                     -- Secretest Fish
                     quest_id = 51355,
                     item = 158932,
                     zone = 1550,
+                },
+            },
+        },
+        {
+            -- Bubblefilled Flounder
+            name = L.BubblefilledFlounderName,
+            description = L.BubblefilledFlounderDescription,
+            pre = { L.Section4Pre1 },
+            criteria = {
+                {
+                    -- Bubblefilled Flounder
+                    item = 200638,
+                    zone = 2022,
+                    waypoint = 19403630,
                 },
             },
         },
@@ -411,6 +424,12 @@ ns.data = {
         [1550] = {
             -- Shadowlands (as a whole)
             color = "ffc478",
+            icon = "3257863",
+        },
+        [2022] = {
+            -- The Waking Shores
+            color = "aef4db",
+            icon = "4672500",
         },
     },
 }

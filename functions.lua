@@ -13,8 +13,10 @@ local large = 16
 local gigantic = 24
 
 -- Shorten API references.
+local CC = C_Container
 local CM = C_Map
 local CST = C_SuperTrack
+local CT = C_Timer
 local CQL = C_QuestLog
 
 ---
@@ -40,9 +42,9 @@ local function TextIcon(icon, size)
     return "|T" .. icon .. ":" .. size .. "|t"
 end
 
-local quest = TextIcon(132049)
-local turnin = TextIcon(132048)
-local checkmark = TextIcon(628564)
+local iconQuest = TextIcon(132049)
+local iconTurnin = TextIcon(132048)
+local iconCheckmark = TextIcon(628564)
 
 -- Set default values for options which are not yet set.
 local function RegisterDefaultOption(key, value)
@@ -53,6 +55,16 @@ end
 
 local function HideTooltip()
     GameTooltip:Hide()
+end
+
+-- Check if an item is in the Player's bags.
+local function hasItemInBags(id)
+    for bag=0, NUM_BAG_SLOTS do
+        for slot=1, CC.GetContainerNumSlots(bag) do
+            if id == CC.GetContainerItemID(bag, slot) then return true end
+        end
+    end
+    return false
 end
 
 ---
@@ -95,12 +107,12 @@ function ns:ToggleWindow(frame, force)
     end
     if (frame:IsVisible() and force ~= "Show") or force == "Hide" then
         UIFrameFadeOut(frame, 0.1, 1, 0)
-        C_Timer.After(0.1, function()
+        CT.After(0.1, function()
             frame:Hide()
         end)
     else
         UIFrameFadeIn(frame, 0.1, 0, 1)
-        C_Timer.After(0.1, function()
+        CT.After(0.1, function()
             frame:Show()
         end)
     end
@@ -137,10 +149,10 @@ local function CustomReplacements(text)
     text = string.gsub(text, "(Secret Fish Goggles)", TextIcon(133023) .. " " .. TextColor("[%1]", "0070dd"))
     text = string.gsub(text, "(Hyper%-Compressed Ocean)", TextIcon(132852) .. " " .. TextColor("[%1]", "0070dd"))
     text = string.gsub(text, "(Secret Fish Lure)", TextIcon(1405811) .. " " .. TextColor("[%1]", "0070dd"))
+    text = string.gsub(text, "(Bubblefilled Flounder)", TextIcon(970822) .. " " .. TextColor("[%1]", "0070dd"))
     text = string.gsub(text, "(The Other Place)", TextIcon(368364) .. " " .. TextColor("[%1]", "ffff00"))
-    text = string.gsub(text, "(Painted Green)", TextIcon(237159) .. " " .. TextColor("[%1]", "ffd000"))
-    text = string.gsub(text, "(Blueprint%: Personal Time Displacer)", TextIcon(2915721) .. " " .. TextColor("[%1]", "0070dd"))
     text = string.gsub(text, "(Angler Danielle)", TextColor("%1", "ffff00"))
+    text = string.gsub(text, "(Painted Green)", TextIcon(237159) .. " " .. TextColor("[%1]", "ffd000"))
     text = string.gsub(text, "( Secret Fish )", TextColor(" %1 ", "ffd000"))
     return text
 end
@@ -307,32 +319,6 @@ function ns:CreateSection(Parent, Relative, Offset, section)
     Section:SetText(name)
     Relative = Section
 
-    local ItemCache = Item:CreateFromItemID(section.reward)
-    ItemCache:ContinueOnItemLoad(function()
-        local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = GetItemInfo(section.reward)
-
-        local Reward = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        Reward:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
-        Reward:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
-        Reward:SetJustifyH("LEFT")
-        Reward:SetText(L.Reward .. ": " .. TextIcon(rewardTexture) .. " " .. rewardLink)
-        Relative = Reward
-
-        local RewardAnchor = CreateFrame("Button", nil, Parent)
-        RewardAnchor:SetAllPoints(Reward)
-        Reward.anchor = RewardAnchor
-
-        Reward.anchor:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-            GameTooltip:SetHyperlink(rewardLink)
-            GameTooltip:Show()
-        end)
-        Reward.anchor:SetScript("OnLeave", HideTooltip)
-        Reward.anchor:SetScript("OnClick", function()
-            print(rewardLink)
-        end)
-    end)
-
     if completed then
         local Completed = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         Completed:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
@@ -340,6 +326,35 @@ function ns:CreateSection(Parent, Relative, Offset, section)
         Completed:SetJustifyH("LEFT")
         Completed:SetText(L.Completed .. ": " .. TextColor("20" .. year .. "/" .. (month < 10 and "0" or "") .. month .. "/" .. (day < 10 and "0" or "") .. day))
         Relative = Completed
+    end
+
+    if section.reward then
+        local Reward = Parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        Reward:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, -medium)
+        Reward:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, -medium)
+        Reward:SetJustifyH("LEFT")
+        Relative = Reward
+
+        local RewardAnchor = CreateFrame("Button", nil, Parent)
+        RewardAnchor:SetAllPoints(Reward)
+        Reward.anchor = RewardAnchor
+
+        local ItemCache = Item:CreateFromItemID(section.reward)
+        ItemCache:ContinueOnItemLoad(function()
+            local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = GetItemInfo(section.reward)
+
+            Reward:SetText(L.Reward .. ": " .. TextIcon(rewardTexture) .. " " .. rewardLink)
+
+            Reward.anchor:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+                GameTooltip:SetHyperlink(rewardLink)
+                GameTooltip:Show()
+            end)
+            Reward.anchor:SetScript("OnLeave", HideTooltip)
+            Reward.anchor:SetScript("OnClick", function()
+                print(rewardLink)
+            end)
+        end)
     end
 
     if description then
@@ -353,7 +368,7 @@ function ns:CreateSection(Parent, Relative, Offset, section)
 
         if string.match(description, "Angler Danielle") then
             local zone = zones[1462]
-            local zoneName = C_Map.GetMapInfo(1462).name
+            local zoneName = CM.GetMapInfo(1462).name
             local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
             local DescriptionAnchor = CreateFrame("Button", nil, Parent)
             DescriptionAnchor:SetAllPoints(Description)
@@ -366,8 +381,8 @@ function ns:CreateSection(Parent, Relative, Offset, section)
             DescriptionAnchor:SetScript("OnLeave", HideTooltip)
             DescriptionAnchor:SetScript("OnClick", function()
                 ns:PrettyPrint("|cffffd100|Hworldmap:1462:3700:4720|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zone.color .. zoneName .. "|r |cffeeeeee37.0, 47.2|r]|h|r")
-                C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(1462, "0.3700", "0.4720"))
-                C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+                CM.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(1462, "0.3700", "0.4720"))
+                CST.SetSuperTrackedUserWaypoint(true)
             end)
         end
     end
@@ -376,10 +391,8 @@ function ns:CreateSection(Parent, Relative, Offset, section)
 end
 
 function ns:CreateCriteria(Parent, Relative, Offset, section, i, criteria)
-    local id = criteria.criteria_id ~= nil and criteria.criteria_id or criteria.quest_id
-
     Offset = Offset and Offset or 0
-    local Criteria = Parent:CreateFontString(ADDON_NAME .. "Criteria" .. id, "ARTWORK", "GameFontNormal")
+    local Criteria = Parent:CreateFontString(ADDON_NAME .. "Criteria", "ARTWORK", "GameFontNormal")
     Criteria:SetPoint("TOPLEFT", Relative, "BOTTOMLEFT", 0, Offset)
     Criteria:SetPoint("TOPRIGHT", Relative, "BOTTOMRIGHT", 0, Offset)
     Criteria:SetJustifyH("LEFT")
@@ -411,7 +424,7 @@ end
 
 function ns:RefreshCriteria()
     if not ns.Criteria then
-        C_Timer.After(1, function()
+        CT.After(1, function()
             ns:RefreshCriteria()
         end)
         return
@@ -421,21 +434,23 @@ function ns:RefreshCriteria()
 
         if Criteria.data.criteria_id then
             _, _, completed = GetAchievementCriteriaInfoByID(Criteria.section.achievement_id, Criteria.data.criteria_id)
-        else
+        elseif Criteria.data.quest_id then
             completed = CQL.IsQuestFlaggedCompleted(Criteria.data.quest_id)
+        else
+            completed = hasItemInBags(Criteria.data.item)
         end
 
         local zoneID = Criteria.data.zone or 1462
         local zone = zones[zoneID] or zones["Generic"]
-        local zoneName = C_Map.GetMapInfo(zoneID).name
+        local zoneName = CM.GetMapInfo(zoneID).name
         local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
         local zoneColor = zone.color or "ffffff"
         local ItemCache = Item:CreateFromItemID(Criteria.data.item)
         ItemCache:ContinueOnItemLoad(function()
             local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
-            local onQuest = Criteria.data.quest and C_QuestLog.IsOnQuest(Criteria.data.quest) or false
+            local onQuest = Criteria.data.quest_id and CQL.IsOnQuest(Criteria.data.quest_id) or false
 
-            Criteria:SetText((onQuest and turnin or completed and checkmark or quest) .. "  " .. Criteria.i .. ". " .. TextIcon(itemTexture) .. " " .. itemLink)
+            Criteria:SetText((onQuest and iconTurnin or completed and iconCheckmark or iconQuest) .. "  " .. Criteria.i .. ". " .. TextIcon(itemTexture) .. " " .. itemLink)
 
             Criteria.anchor:SetScript("OnEnter", function(self)
                 GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
@@ -477,8 +492,8 @@ function ns:RefreshCriteria()
                     Criteria.locationAnchor:SetScript("OnClick", function()
                         print("hello")
                         ns:PrettyPrint(itemLink .. "\n|cffffd100|Hworldmap:" .. zoneID .. ":" .. c[1] .. c[2] .. ":" .. c[3] .. c[4] .. "|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zoneColor .. zoneName .. "|r  |cffeeeeee" .. c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4] .. "|r]|h|r")
-                        C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
-                        C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+                        CM.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
+                        CST.SetSuperTrackedUserWaypoint(true)
                     end)
                 end
             end
