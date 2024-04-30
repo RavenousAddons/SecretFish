@@ -48,8 +48,8 @@ local iconCheckmark = TextIcon(628564)
 
 -- Set default values for options which are not yet set.
 local function RegisterDefaultOption(key, value)
-    if RAV_data.options[key] == nil then
-        RAV_data.options[key] = value
+    if SECRETFISH_data.options[key] == nil then
+        SECRETFISH_data.options[key] = value
     end
 end
 
