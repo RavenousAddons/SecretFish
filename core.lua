@@ -32,22 +32,31 @@ function SecretFish_OnEvent(self, event, arg, ...)
     end
 end
 
-function SecretFish_OnAddonCompartmentClick(addonName, buttonName)
-    if buttonName == "RightButton" then
-        ns:OpenSettings()
-        return
-    end
-    ns:ToggleWindow(ns.Window)
-end
-
-function SecretFish_OnAddonCompartmentEnter()
-    GameTooltip:SetOwner(DropDownList1)
-    GameTooltip:SetText(ns.name .. "        v" .. ns.version)
-    GameTooltip:AddLine(" ", 1, 1, 1, true)
-    GameTooltip:AddLine(L.AddonCompartmentTooltip1, 1, 1, 1, true)
-    GameTooltip:AddLine(L.AddonCompartmentTooltip2, 1, 1, 1, true)
-    GameTooltip:Show()
-end
+AddonCompartmentFrame:RegisterAddon({
+    text = C_AddOns.GetAddOnMetadata(ADDON_NAME, "Title"),
+    icon = C_AddOns.GetAddOnMetadata(ADDON_NAME, "IconAtlas"),
+    registerForAnyClick = true,
+    notCheckable = true,
+    func = function(button, menuInputData, menu)
+        local buttonName = menuInputData.buttonName
+        if buttonName == "RightButton" then
+            ns:OpenSettings()
+        else
+            ns:ToggleWindow(ns.Window)
+        end
+    end,
+    funcOnEnter = function(menuItem)
+        GameTooltip:SetOwner(menuItem)
+        GameTooltip:SetText(ns.name .. "        v" .. ns.version)
+        GameTooltip:AddLine(" ", 1, 1, 1, true)
+        GameTooltip:AddLine(L.AddonCompartmentTooltip1, 1, 1, 1, true)
+        GameTooltip:AddLine(L.AddonCompartmentTooltip2, 1, 1, 1, true)
+        GameTooltip:Show()
+    end,
+    funcOnLeave = function()
+        GameTooltip:Hide()
+    end,
+})
 
 SlashCmdList["SECRETFISH"] = function(message, editbox)
     if message == "version" or message == "v" then

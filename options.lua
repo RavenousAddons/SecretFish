@@ -16,19 +16,18 @@ local function CreateCheckBox(category, variable, name, tooltip)
         SECRETFISH_data.options[variable] = setting:GetValue()
         ns:EnsureMacro()
     end)
-    Settings.CreateCheckBox(category, setting, tooltip)
+    Settings.CreateCheckbox(category, setting, tooltip)
 end
 
 function ns:CreateSettingsPanel()
     local category, layout = Settings.RegisterVerticalLayoutCategory(ns.name)
+    Settings.RegisterAddOnCategory(category)
 
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(_G.GAMEOPTIONS_MENU .. ":"))
 
     do
         CreateCheckBox(category, "macro", L.Macro, L.MacroTooltip:format(ns.name))
     end
-
-    Settings.RegisterAddOnCategory(category)
 
     ns.Settings = category
 end
