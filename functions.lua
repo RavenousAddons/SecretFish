@@ -48,8 +48,8 @@ local iconCheckmark = TextIcon(628564)
 
 -- Set default values for options which are not yet set.
 local function RegisterDefaultOption(key, value)
-    if SECRETFISH_data.options[key] == nil then
-        SECRETFISH_data.options[key] = value
+    if SECRETFISH_options[key] == nil then
+        SECRETFISH_options[key] = value
     end
 end
 
@@ -86,8 +86,8 @@ function ns:SetDefaultSettings()
     if SECRETFISH_data == nil then
         SECRETFISH_data = {}
     end
-    if SECRETFISH_data.options == nil then
-        SECRETFISH_data.options = {}
+    if SECRETFISH_options == nil then
+        SECRETFISH_options = {}
     end
     for k, v in pairs(defaults) do
         RegisterDefaultOption(k, v)
@@ -131,7 +131,7 @@ end
 
 local hasSeenNoSpaceMessage = false
 function ns:EnsureMacro()
-    if not UnitAffectingCombat("player") and SECRETFISH_data.options.macro then
+    if not UnitAffectingCombat("player") and SECRETFISH_options.macro then
         local body = "/" .. ns.command
         local numberOfMacros, _ = GetNumMacros()
         if GetMacroIndexByName(ns.name) > 0 then
@@ -165,10 +165,10 @@ function ns:BuildWindow()
     local Window = CreateFrame("Frame", ADDON_NAME .. "Window", UIParent, "UIPanelDialogTemplate")
     ns.Window = Window
     Window:SetFrameStrata("MEDIUM")
-    Window:SetWidth(SECRETFISH_data.options.windowWidth)
-    Window:SetHeight(SECRETFISH_data.options.windowHeight)
-    Window:SetScale(SECRETFISH_data.options.scale)
-    Window:SetPoint(SECRETFISH_data.options.windowPosition, SECRETFISH_data.options.windowX, SECRETFISH_data.options.windowY)
+    Window:SetWidth(SECRETFISH_options.windowWidth)
+    Window:SetHeight(SECRETFISH_options.windowHeight)
+    Window:SetScale(SECRETFISH_options.scale)
+    Window:SetPoint(SECRETFISH_options.windowPosition, SECRETFISH_options.windowX, SECRETFISH_options.windowY)
     Window:EnableMouse(true)
     Window:SetMovable(true)
     Window:SetClampedToScreen(true)
@@ -183,7 +183,7 @@ function ns:BuildWindow()
     tinsert(UISpecialFrames, Window:GetName())
 
     local function WindowInteractionStart(self, button)
-        if button == "LeftButton" and not SECRETFISH_data.options.locked then
+        if button == "LeftButton" and not SECRETFISH_options.locked then
             Window:StartMoving()
             Window.isMoving = true
             Window.hasMoved = false
@@ -195,9 +195,9 @@ function ns:BuildWindow()
             Window.isMoving = false
             Window.hasMoved = true
             local point, _, _, x, y = Window:GetPoint()
-            SECRETFISH_data.options.windowPosition = point
-            SECRETFISH_data.options.windowX = x
-            SECRETFISH_data.options.windowY = y
+            SECRETFISH_options.windowPosition = point
+            SECRETFISH_options.windowX = x
+            SECRETFISH_options.windowY = y
         end
     end
     Window:SetScript("OnMouseDown", WindowInteractionStart)
@@ -209,12 +209,12 @@ function ns:BuildWindow()
     LockButton:SetHeight(18)
     LockButton:RegisterForClicks("LeftButtonUp")
     LockButton:SetScript("OnMouseDown", function(self, button)
-        SECRETFISH_data.options.locked = not SECRETFISH_data.options.locked
-        GameTooltip:SetText(TextColor(SECRETFISH_data.options.locked and "Unlock Window" or "Lock Window"))
+        SECRETFISH_options.locked = not SECRETFISH_options.locked
+        GameTooltip:SetText(TextColor(SECRETFISH_options.locked and "Unlock Window" or "Lock Window"))
     end)
     LockButton:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-        GameTooltip:SetText(TextColor(SECRETFISH_data.options.locked and "Unlock Window" or "Lock Window"))
+        GameTooltip:SetText(TextColor(SECRETFISH_options.locked and "Unlock Window" or "Lock Window"))
         GameTooltip:Show()
     end)
     LockButton:SetScript("OnLeave", HideTooltip)
@@ -253,7 +253,7 @@ function ns:BuildWindow()
 
     -- Content
     local Content = CreateFrame("Frame", ADDON_NAME .. "Content", Scroller)
-    Content:SetWidth(SECRETFISH_data.options.windowWidth - 46)
+    Content:SetWidth(SECRETFISH_options.windowWidth - 46)
     Content:SetHeight(1)
     Scroller:SetScrollChild(Content)
 

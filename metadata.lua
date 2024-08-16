@@ -1,5 +1,7 @@
 local ADDON_NAME, ns = ...
 
+local GetAddOnMetadata = C_AddOns.GetAddOnMetadata
+
 ns.name = "Secret Fish"
 ns.title = GetAddOnMetadata(ADDON_NAME, "Title")
 ns.notes = GetAddOnMetadata(ADDON_NAME, "Notes")

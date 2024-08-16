@@ -11,9 +11,10 @@ local large = 16
 local gigantic = 24
 
 local function CreateCheckBox(category, variable, name, tooltip)
-    local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaults[variable]), SECRETFISH_data.options[variable])
+    -- categoryTbl, variable, variableKey, variableTbl, variableType, name, defaultValue
+    local setting = Settings.RegisterAddOnSetting(category, variable, variable, SECRETFISH_options, type(defaults[variable]), name, defaults[variable])
     Settings.SetOnValueChangedCallback(variable, function(event)
-        SECRETFISH_data.options[variable] = setting:GetValue()
+        SECRETFISH_options[variable] = setting:GetValue()
         ns:EnsureMacro()
     end)
     Settings.CreateCheckbox(category, setting, tooltip)
