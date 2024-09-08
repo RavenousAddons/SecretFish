@@ -422,6 +422,8 @@ function ns:CreateCriteria(Parent, Relative, Offset, section, i, criteria)
     return Relative
 end
 
+local CriteriaCache = {}
+
 function ns:RefreshCriteria()
     if not ns.Criteria then
         CT.After(1, function()
@@ -429,76 +431,86 @@ function ns:RefreshCriteria()
         end)
         return
     end
-    for _, Criteria in ipairs(ns.Criteria) do
-        local completed
 
-        if Criteria.data.criteria_id then
-            _, _, completed = GetAchievementCriteriaInfoByID(Criteria.section.achievement_id, Criteria.data.criteria_id)
-        elseif Criteria.data.quest_id then
-            completed = CQL.IsQuestFlaggedCompleted(Criteria.data.quest_id)
-        else
-            completed = hasItemInBags(Criteria.data.item)
-        end
+    local AllCompleted = true
 
-        local zoneID = Criteria.data.zone or 1462
-        local zone = zones[zoneID] or zones["Generic"]
-        local zoneName = CM.GetMapInfo(zoneID).name
-        local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
-        local zoneColor = zone.color or "ffffff"
-        local ItemCache = Item:CreateFromItemID(Criteria.data.item)
-        ItemCache:ContinueOnItemLoad(function()
-            local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
-            local onQuest = Criteria.data.quest_id and CQL.IsOnQuest(Criteria.data.quest_id) or false
+    for index, Criteria in ipairs(ns.Criteria) do
+        local completed = CriteriaCache[Criteria.data.item] == true
+        if not completed then
+            if Criteria.data.criteria_id then
+                _, _, completed = GetAchievementCriteriaInfoByID(Criteria.section.achievement_id, Criteria.data.criteria_id)
+            elseif Criteria.data.quest_id then
+                completed = CQL.IsQuestFlaggedCompleted(Criteria.data.quest_id)
+            else
+                completed = hasItemInBags(Criteria.data.item)
+            end
 
-            Criteria:SetText((onQuest and iconTurnin or completed and iconCheckmark or iconQuest) .. "  " .. Criteria.i .. ". " .. TextIcon(itemTexture) .. " " .. itemLink)
+            CriteriaCache[Criteria.data.item] = completed
+            if not completed then
+                AllCompleted = false
+            end
 
-            Criteria.anchor:SetScript("OnEnter", function(self)
-                GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-                GameTooltip:SetHyperlink(itemLink)
-                GameTooltip:Show()
-            end)
-            Criteria.anchor:SetScript("OnLeave", HideTooltip)
-            Criteria.anchor:SetScript("OnClick", function()
-                print(itemLink)
-            end)
+            local zoneID = Criteria.data.zone or 1462
+            local zone = zones[zoneID] or zones["Generic"]
+            local zoneName = CM.GetMapInfo(zoneID).name
+            local zoneIcon = zone.icon and TextIcon(zone.icon) .. " " or ""
+            local zoneColor = zone.color or "ffffff"
+            local ItemCache = Item:CreateFromItemID(Criteria.data.item)
+            ItemCache:ContinueOnItemLoad(function()
+                local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
+                local onQuest = Criteria.data.quest_id and CQL.IsOnQuest(Criteria.data.quest_id) or false
 
-            if Criteria.location and Criteria.locationAnchor then
-                local c = {}
-                if Criteria.data.waypoint then
-                    local waypoint = type(Criteria.data.waypoint) == "table" and Criteria.data.waypoint[1] or Criteria.data.waypoint
-                    for split in tostring(waypoint):gmatch("[0-9][0-9]") do
-                        table.insert(c, split)
-                    end
-                    Criteria.location:SetText("      " .. TextColor(zoneName, zone.color) .. TextColor(" ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
-                else
-                    Criteria.location:SetText("      " .. TextColor(zoneName, zone.color) .. TextColor(" - ", "bbbbbb") .. TextColor(L.ZoneWide))
-                end
-                Criteria.locationAnchor:SetScript("OnEnter", function(self)
+                Criteria:SetText((onQuest and iconTurnin or completed and iconCheckmark or iconQuest) .. "  " .. Criteria.i .. ". " .. TextIcon(itemTexture) .. " " .. itemLink)
+
+                Criteria.anchor:SetScript("OnEnter", function(self)
                     GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-                    if Criteria.data.waypoint then
-                        GameTooltip:SetText("Create Map Pin: " .. TextColor(itemName))
-                        GameTooltip:AddLine("\n" .. zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
-                    else
-                        GameTooltip:SetText(TextColor(itemName))
-                        GameTooltip:AddLine("\n" .. TextColor(L.DropsAnywhere .. ":  " .. zoneIcon .. TextColor(zoneName, zone.color), "bbbbbb"))
-                    end
-                    if Criteria.data.dropchance then
-                        GameTooltip:AddLine("\n" .. L.DropChance .. ":  " .. TextColor(Criteria.data.dropchance .. "% ") ..  TextColor("(" .. L.Attempts .. ")", "bbbbbb"))
-                    end
+                    GameTooltip:SetHyperlink(itemLink)
                     GameTooltip:Show()
                 end)
-                Criteria.locationAnchor:SetScript("OnLeave", HideTooltip)
-                if Criteria.data.waypoint then
-                    Criteria.locationAnchor:SetScript("OnClick", function()
-                        print("hello")
-                        ns:PrettyPrint(itemLink .. "\n|cffffd100|Hworldmap:" .. zoneID .. ":" .. c[1] .. c[2] .. ":" .. c[3] .. c[4] .. "|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zoneColor .. zoneName .. "|r  |cffeeeeee" .. c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4] .. "|r]|h|r")
-                        CM.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
-                        CST.SetSuperTrackedUserWaypoint(true)
+                Criteria.anchor:SetScript("OnLeave", HideTooltip)
+                Criteria.anchor:SetScript("OnClick", function()
+                    print(itemLink)
+                end)
+
+                if Criteria.location and Criteria.locationAnchor then
+                    local c = {}
+                    if Criteria.data.waypoint then
+                        local waypoint = type(Criteria.data.waypoint) == "table" and Criteria.data.waypoint[1] or Criteria.data.waypoint
+                        for split in tostring(waypoint):gmatch("[0-9][0-9]") do
+                            table.insert(c, split)
+                        end
+                        Criteria.location:SetText("      " .. TextColor(zoneName, zone.color) .. TextColor(" ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
+                    else
+                        Criteria.location:SetText("      " .. TextColor(zoneName, zone.color) .. TextColor(" - ", "bbbbbb") .. TextColor(L.ZoneWide))
+                    end
+                    Criteria.locationAnchor:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
+                        if Criteria.data.waypoint then
+                            GameTooltip:SetText("Create Map Pin: " .. TextColor(itemName))
+                            GameTooltip:AddLine("\n" .. zoneIcon .. TextColor(zoneName, zone.color) .. TextColor(" ", "bbbbbb") .. TextColor(c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4]))
+                        else
+                            GameTooltip:SetText(TextColor(itemName))
+                            GameTooltip:AddLine("\n" .. TextColor(L.DropsAnywhere .. ":  " .. zoneIcon .. TextColor(zoneName, zone.color), "bbbbbb"))
+                        end
+                        if Criteria.data.dropchance then
+                            GameTooltip:AddLine("\n" .. L.DropChance .. ":  " .. TextColor(Criteria.data.dropchance .. "% ") ..  TextColor("(" .. L.Attempts .. ")", "bbbbbb"))
+                        end
+                        GameTooltip:Show()
                     end)
+                    Criteria.locationAnchor:SetScript("OnLeave", HideTooltip)
+                    if Criteria.data.waypoint then
+                        Criteria.locationAnchor:SetScript("OnClick", function()
+                            ns:PrettyPrint(itemLink .. "\n|cffffd100|Hworldmap:" .. zoneID .. ":" .. c[1] .. c[2] .. ":" .. c[3] .. c[4] .. "|h[|A:Waypoint-MapPin-ChatIcon:13:13:0:0|a |cff" .. zoneColor .. zoneName .. "|r  |cffeeeeee" .. c[1] .. "." .. c[2] .. ", " .. c[3] .. "." .. c[4] .. "|r]|h|r")
+                            CM.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zoneID, "0." .. c[1] .. c[2], "0." .. c[3] .. c[4]))
+                            CST.SetSuperTrackedUserWaypoint(true)
+                        end)
+                    end
                 end
-            end
-        end)
+            end)
+        end
     end
+
+    return AllCompleted
 end
 
 function ns:CreateNote(Parent, Relative, Offset, note)

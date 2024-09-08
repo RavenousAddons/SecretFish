@@ -28,7 +28,15 @@ function SecretFish_OnEvent(self, event, arg, ...)
         ns:EnsureMacro()
         self:UnregisterEvent("PLAYER_LOGIN")
     elseif event == "CRITERIA_COMPLETE" or event == "CRITERIA_EARNED" or event == "CRITERIA_UPDATE" or event == "QUEST_ACCEPTED" or event == "QUEST_TURNED_IN" or (event == "BAG_UPDATE") then
-        ns:RefreshCriteria()
+        local allCompleted = ns:RefreshCriteria()
+        if allCompleted then
+            self:UnregisterEvent("CRITERIA_COMPLETE")
+            self:UnregisterEvent("CRITERIA_EARNED")
+            self:UnregisterEvent("CRITERIA_UPDATE")
+            self:UnregisterEvent("QUEST_ACCEPTED")
+            self:UnregisterEvent("QUEST_TURNED_IN")
+            self:UnregisterEvent("BAG_UPDATE")
+        end
     end
 end
 
