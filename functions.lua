@@ -341,7 +341,7 @@ function ns:CreateSection(Parent, Relative, Offset, section)
 
         local ItemCache = Item:CreateFromItemID(section.reward)
         ItemCache:ContinueOnItemLoad(function()
-            local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = GetItemInfo(section.reward)
+            local rewardName, rewardLink, _, _, _, _, _, _, _, rewardTexture, _ = C_Item.GetItemInfo(section.reward)
 
             Reward:SetText(L.Reward .. ": " .. TextIcon(rewardTexture) .. " " .. rewardLink)
 
@@ -457,7 +457,7 @@ function ns:RefreshCriteria()
             local zoneColor = zone.color or "ffffff"
             local ItemCache = Item:CreateFromItemID(Criteria.data.item)
             ItemCache:ContinueOnItemLoad(function()
-                local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(Criteria.data.item)
+                local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = C_Item.GetItemInfo(Criteria.data.item)
                 local onQuest = Criteria.data.quest_id and CQL.IsOnQuest(Criteria.data.quest_id) or false
 
                 Criteria:SetText((onQuest and iconTurnin or completed and iconCheckmark or iconQuest) .. "  " .. Criteria.i .. ". " .. TextIcon(itemTexture) .. " " .. itemLink)

@@ -10,9 +10,9 @@ setmetatable(L, { __index = function(t, k)
 end })
 
 -- Get strings from the API
-local secretestFishName, _ = GetItemInfo(158932)
+local secretestFishName, _ = C_Item.GetItemInfo(158932)
 L.SecretestFishName = secretestFishName
-local bubblefilledFlounderName, _ = GetItemInfo(200638)
+local bubblefilledFlounderName, _ = C_Item.GetItemInfo(200638)
 L.BubblefilledFlounderName = bubblefilledFlounderName
 
 -- Default (English)
