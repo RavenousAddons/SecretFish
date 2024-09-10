@@ -18,7 +18,6 @@ L.BubblefilledFlounderName = bubblefilledFlounderName
 -- Default (English)
 L.Version = "%s is the current version." -- ns.version
 L.Install = "Thanks for installing |cff%1$sv%2$s|r! You can open the interface with |cff%1$s/%3$s|r." -- ns.color, ns.version, ns.command
-L.Update = "Thanks for updating to |cff%1$sv%2$s|r! You can open the interface with |cff%1$s/%3$s|r." -- ns.color, ns.version, ns.command
 L.NoMacroSpace = "Unfortunately, you don't have enough space in General Macros for the macro to be created!"
 L.Macro = "Generate Macro"
 L.MacroTooltip = "When enabled, a macro called |cffffffff%s|r will be automatically created and managed for you under |cffffffffGeneral Macros|r." -- ns.name

@@ -3,6 +3,7 @@ local L = ns.L
 
 function SecretFish_OnLoad(self)
     self:RegisterEvent("PLAYER_LOGIN")
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CRITERIA_COMPLETE")
     self:RegisterEvent("CRITERIA_EARNED")
     self:RegisterEvent("CRITERIA_UPDATE")
@@ -19,14 +20,15 @@ function SecretFish_OnEvent(self, event, arg, ...)
             if not SECRETFISH_version then
                 ns:PrettyPrint(L.Install:format(ns.color, ns.version, ns.command))
             elseif SECRETFISH_version ~= ns.version then
-                ns:PrettyPrint(L.Update:format(ns.color, ns.version, ns.command))
+                -- Version-specific messages go here...
             end
             SECRETFISH_version = ns.version
         end
+    elseif event == "PLAYER_ENTERING_WORLD" then
         ns:BuildWindow()
         ns:RefreshCriteria()
         ns:EnsureMacro()
-        self:UnregisterEvent("PLAYER_LOGIN")
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     elseif event == "CRITERIA_COMPLETE" or event == "CRITERIA_EARNED" or event == "CRITERIA_UPDATE" or event == "QUEST_ACCEPTED" or event == "QUEST_TURNED_IN" or (event == "BAG_UPDATE") then
         local allCompleted = ns:RefreshCriteria()
         if allCompleted then
