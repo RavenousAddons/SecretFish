@@ -23,15 +23,6 @@ local CQL = C_QuestLog
 --- Helper Functions
 ---
 
-local function contains(table, input)
-    for index, value in ipairs(table) do
-        if value == input then
-            return index
-        end
-    end
-    return false
-end
-
 local function TextColor(text, color)
     color = color and color or "eeeeee"
     return "|cff" .. color .. text .. "|r"
@@ -71,16 +62,6 @@ end
 -- Global Functions
 ---
 
--- Format AddOn messages.
-function ns:PrettyMessage(message)
-    return "|cff" .. ns.color .. ns.name .. ":|r " .. message
-end
-
--- Print an AddOn message.
-function ns:PrettyPrint(message)
-    DEFAULT_CHAT_FRAME:AddMessage(ns:PrettyMessage(message))
-end
-
 -- Set up a data object to keep track of AddOn information.
 function ns:SetDefaultSettings()
     if SECRETFISH_data == nil then
@@ -90,15 +71,9 @@ function ns:SetDefaultSettings()
         SECRETFISH_options = {}
     end
     for k, v in pairs(defaults) do
-        RegisterDefaultOption(k, v)
+        ns:SetOptionDefault(SECRETFISH_options, k, v)
     end
     SECRETFISH_data.data = ns.data
-end
-
--- Open the AddOn Settings page
-function ns:OpenSettings()
-    PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
-    Settings.OpenToCategory(ns.Settings:GetID())
 end
 
 function ns:ToggleWindow(frame, force)
@@ -128,22 +103,6 @@ end
 ---
 -- Specific-Use Functions
 ---
-
-local hasSeenNoSpaceMessage = false
-function ns:EnsureMacro()
-    if not UnitAffectingCombat("player") and SECRETFISH_options.macro then
-        local body = "/" .. ns.command
-        local numberOfMacros, _ = GetNumMacros()
-        if GetMacroIndexByName(ns.name) > 0 then
-            EditMacro(GetMacroIndexByName(ns.name), ns.name, ns.icon, body)
-        elseif numberOfMacros < 120 then
-            CreateMacro(ns.name, ns.icon, body)
-        elseif not hasSeenNoSpaceMessage then
-            hasSeenNoSpaceMessage = true
-            ns:PrettyPrint(L.NoMacroSpace)
-        end
-    end
-end
 
 local function CustomReplacements(text)
     text = string.gsub(text, "(Secret Fish Goggles)", TextIcon(133023) .. " " .. TextColor("[%1]", "0070dd"))
@@ -221,24 +180,6 @@ function ns:BuildWindow()
     local LockButtonIcon = LockButton:CreateTexture()
     LockButtonIcon:SetAllPoints(LockButton)
     LockButtonIcon:SetTexture(130944)
-
-    local OptionsButton = CreateFrame("Button", ADDON_NAME .. "OptionsButton", Window, "UIPanelButtonTemplate")
-    OptionsButton:SetPoint("TOPLEFT", LockButton, "TOPRIGHT", 2, 0)
-    OptionsButton:SetWidth(18)
-    OptionsButton:SetHeight(18)
-    OptionsButton:RegisterForClicks("LeftButtonUp")
-    OptionsButton:SetScript("OnMouseDown", function(self, button)
-        ns:OpenSettings()
-    end)
-    OptionsButton:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self or UIParent, "ANCHOR_CURSOR")
-        GameTooltip:SetText(TextColor("Open Interface Options"))
-        GameTooltip:Show()
-    end)
-    OptionsButton:SetScript("OnLeave", HideTooltip)
-    local OptionsButtonIcon = OptionsButton:CreateTexture()
-    OptionsButtonIcon:SetAllPoints(OptionsButton)
-    OptionsButtonIcon:SetTexture(134063)
 
     -- Simple Heading
     local Heading = Window:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -542,4 +483,8 @@ function ns:CreateSpacer(Parent, Relative, size)
     Spacer:SetHeight(size)
 
     return Spacer
+end
+
+function sfBinding()
+    ns:ToggleWindow(ns.Window)
 end

@@ -15,7 +15,6 @@ end
 function SecretFish_OnEvent(self, event, arg, ...)
     if event == "PLAYER_LOGIN" then
         ns:SetDefaultSettings()
-        ns:CreateSettingsPanel()
         if not ns.version:match("-") then
             if not SECRETFISH_version then
                 ns:PrettyPrint(L.Install:format(ns.color, ns.version, ns.command))
@@ -27,7 +26,6 @@ function SecretFish_OnEvent(self, event, arg, ...)
     elseif event == "PLAYER_ENTERING_WORLD" then
         ns:BuildWindow()
         ns:RefreshCriteria()
-        ns:EnsureMacro()
         self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     elseif event == "CRITERIA_COMPLETE" or event == "CRITERIA_EARNED" or event == "CRITERIA_UPDATE" or event == "QUEST_ACCEPTED" or event == "QUEST_TURNED_IN" or (event == "BAG_UPDATE") then
         local allCompleted = ns:RefreshCriteria()
@@ -49,18 +47,13 @@ AddonCompartmentFrame:RegisterAddon({
     notCheckable = true,
     func = function(button, menuInputData, menu)
         local buttonName = menuInputData.buttonName
-        if buttonName == "RightButton" then
-            ns:OpenSettings()
-        else
-            ns:ToggleWindow(ns.Window)
-        end
+        ns:ToggleWindow(ns.Window)
     end,
     funcOnEnter = function(menuItem)
         GameTooltip:SetOwner(menuItem)
         GameTooltip:SetText(ns.name .. "        v" .. ns.version)
         GameTooltip:AddLine(" ", 1, 1, 1, true)
-        GameTooltip:AddLine(L.AddonCompartmentTooltip1, 1, 1, 1, true)
-        GameTooltip:AddLine(L.AddonCompartmentTooltip2, 1, 1, 1, true)
+        GameTooltip:AddLine(L.AddonCompartmentTooltip, 1, 1, 1, true)
         GameTooltip:Show()
     end,
     funcOnLeave = function()
@@ -71,10 +64,11 @@ AddonCompartmentFrame:RegisterAddon({
 SlashCmdList["SECRETFISH"] = function(message, editbox)
     if message == "version" or message == "v" then
         ns:PrettyPrint(string.format(L.Version, ns.version))
-    elseif message == "c" or string.match(message, "con") or message == "h" or string.match(message, "help") or message == "o" or string.match(message, "opt") or message == "s" or string.match(message, "sett") or string.match(message, "togg") then
-        ns:OpenSettings()
     else
         ns:ToggleWindow(ns.Window)
     end
 end
 SLASH_SECRETFISH1 = "/" .. ns.command
+SLASH_SECRETFISH2 = "/sf"
+
+BINDING_NAME_SECRET_FISH_KEY = L.ToggleWindow

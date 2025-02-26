@@ -1,0 +1,7 @@
+<Bindings>
+
+    <Binding name="SECRET_FISH_KEY" category="Secret Fish">
+        sfBinding()
+    </Binding>
+
+</Bindings>

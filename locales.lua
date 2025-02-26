@@ -11,16 +11,14 @@ end })
 
 -- Get strings from the API
 local secretestFishName, _ = C_Item.GetItemInfo(158932)
-L.SecretestFishName = secretestFishName
+L.SecretestFishName = secretestFishName or "Secretest Fish"
 local bubblefilledFlounderName, _ = C_Item.GetItemInfo(200638)
-L.BubblefilledFlounderName = bubblefilledFlounderName
+L.BubblefilledFlounderName = bubblefilledFlounderName or "Bubblefilled Flounder"
 
 -- Default (English)
+L.ToggleWindow = "Toggle Window"
 L.Version = "%s is the current version." -- ns.version
 L.Install = "Thanks for installing |cff%1$sv%2$s|r! You can open the interface with |cff%1$s/%3$s|r." -- ns.color, ns.version, ns.command
-L.NoMacroSpace = "Unfortunately, you don't have enough space in General Macros for the macro to be created!"
-L.Macro = "Generate Macro"
-L.MacroTooltip = "When enabled, a macro called |cffffffff%s|r will be automatically created and managed for you under |cffffffffGeneral Macros|r." -- ns.name
 L.Intro = "Locations in the lists that have coordinates attached to them can be clicked to set a Map Pin."
 L.Section1Pre = "Simply travel around Mechagon fishing in specific areas and turn each fish in!"
 L.Section1Post = "When you've caught all 10, you will be awarded the Secret Fish Goggles, which you will need for the next achievement!"
@@ -47,8 +45,7 @@ L.DropsAnywhere = "Drops anywhere"
 L.DropChance = "Drop Chance"
 L.ZoneWide = "Zone-wide"
 L.Attempts = "~95% after 300 attempts"
-L.AddonCompartmentTooltip1 = "Left-Click: Open Window"
-L.AddonCompartmentTooltip2 = "Right-Click: Open Settings"
+L.AddonCompartmentTooltip = "|cff" .. ns.color .. "Click:|r Open Window"
 
 -- Check locale and assign appropriate
 local CURRENT_LOCALE = GetLocale()

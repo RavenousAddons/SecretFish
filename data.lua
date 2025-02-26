@@ -3,7 +3,6 @@ local L = ns.L
 
 ns.data = {
     defaults = {
-        macro = true,
         scale = 1,
         windowPosition = "CENTER",
         windowX = 0,

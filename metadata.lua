@@ -9,3 +9,4 @@ ns.version = GetAddOnMetadata(ADDON_NAME, "Version")
 ns.color = "975068"
 ns.command = "secretfish"
 ns.icon = "136245"
+ns.prefix = ""
